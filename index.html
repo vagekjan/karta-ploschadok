@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Карта площадок · Денис Кабалкин</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2222%22%20fill%3D%22%2314100d%22%2F%3E%3Cg%20stroke%3D%22%236b5643%22%20stroke-width%3D%223.4%22%20stroke-linecap%3D%22round%22%3E%3Cline%20x1%3D%2217%22%20y1%3D%2227%22%20x2%3D%2238%22%20y2%3D%2244%22%2F%3E%3Cline%20x1%3D%2217%22%20y1%3D%2240%22%20x2%3D%2239%22%20y2%3D%2247%22%2F%3E%3Cline%20x1%3D%2217%22%20y1%3D%2260%22%20x2%3D%2239%22%20y2%3D%2253%22%2F%3E%3Cline%20x1%3D%2217%22%20y1%3D%2273%22%20x2%3D%2238%22%20y2%3D%2256%22%2F%3E%3C%2Fg%3E%3Cline%20x1%3D%2260%22%20y1%3D%2250%22%20x2%3D%2282%22%20y2%3D%2250%22%20stroke%3D%22%23c0633f%22%20stroke-width%3D%224.4%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpolygon%20points%3D%2279%2C44%2089%2C50%2079%2C56%22%20fill%3D%22%23c0633f%22%2F%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2212.5%22%20fill%3D%22none%22%20stroke%3D%22%23c0633f%22%20stroke-width%3D%224.6%22%2F%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%224.6%22%20fill%3D%22%23e8a86b%22%2F%3E%3C%2Fsvg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAF8F5;--surface:#fff;--text1:#1a1a1a;--text2:#555;--text3:#999;--accent:#8B3A2A;--accent-soft:rgba(139,58,42,.07);--accent-border:rgba(139,58,42,.25);--border:#e0dcd8;--border-light:#eee;--green:#2d7a4f;--green-bg:rgba(45,122,79,.08);--amber:#b45309;--amber-bg:rgba(180,83,9,.08);--blue:#2563eb;--blue-bg:rgba(37,99,235,.08);--purple:#7c3aed;--purple-bg:rgba(124,58,237,.08)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text1);display:flex;height:100vh;font-size:13px}
+h1,h2,h3{font-family:'Cormorant Garamond',serif}
+/* Sidebar */
+.sidebar{width:260px;min-width:260px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.logo{padding:20px;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--accent);font-weight:700}
+.logo span{display:block;font-family:'Instrument Sans',sans-serif;font-size:11px;color:var(--text3);font-weight:400;margin-top:2px}
+.nav-section{padding:14px 20px 5px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:2px}
+.nav-item{padding:10px 20px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;color:var(--text2);border-right:3px solid transparent;transition:all .12s}
+.nav-item:hover{color:var(--text1);background:rgba(0,0,0,.02)}
+.nav-item.active{color:var(--accent);font-weight:600;border-right-color:var(--accent);background:var(--accent-soft)}
+.nav-item .ico{width:16px;text-align:center;font-size:12px}
+.badge{margin-left:auto;background:var(--accent);color:#fff;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.sidebar-footer{margin-top:auto;padding:16px 20px;font-size:10px;color:var(--text3);border-top:1px solid var(--border-light)}
+/* Main */
+#main{flex:1;overflow-y:auto;padding:40px 48px}
+.section{display:none}
+.section.active{display:block}
+.eyebrow{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:3px;margin-bottom:8px}
+h1{font-size:28px;margin-bottom:8px}
+.subtitle{font-size:14px;color:var(--text2);margin-bottom:24px}
+/* Toolbar */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.search-box{padding:8px 14px;border:1px solid var(--border);border-radius:18px;font-size:13px;font-family:inherit;width:280px;outline:none;transition:border .15s}
+.search-box:focus{border-color:var(--accent)}
+.filter-btn{padding:8px 16px;border:1px solid var(--border);border-radius:18px;font-size:13px;font-family:inherit;cursor:pointer;background:var(--surface);color:var(--text2);transition:all .12s;font-weight:500}
+.filter-btn:hover{border-color:var(--accent);color:var(--accent)}
+.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+#club-cat-toolbar .filter-btn{border-color:var(--accent-border);color:var(--accent);font-weight:600;background:var(--accent-soft)}
+#pod-cat-toolbar .filter-btn{border-color:var(--accent-border);color:var(--accent);font-weight:600;background:var(--accent-soft)}
+#pod-cat-toolbar .filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+#club-cat-toolbar .filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* Cards */
+.card-grid{display:grid;grid-template-columns:1fr;gap:14px}
+.card{background:var(--surface);border:1px solid var(--border-light);border-radius:10px;padding:20px 24px;transition:all .15s;cursor:default}
+.card:hover{border-color:var(--accent-border);box-shadow:0 3px 16px rgba(0,0,0,.05)}
+.card h3{font-size:17px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px;line-height:1.3}
+.card .meta{font-size:13px;color:var(--text2);margin-bottom:6px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.card .meta span{display:flex;align-items:center;gap:4px}
+.card p{font-size:14px;color:var(--text2);line-height:1.6}
+.card .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tag{padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.tag-free{background:var(--green-bg);color:var(--green)}
+.tag-paid{background:var(--amber-bg);color:var(--amber)}
+.tag-invite{background:var(--purple-bg);color:var(--purple)}
+.tag-digital{background:var(--blue-bg);color:var(--blue)}
+.tag-biz{background:var(--accent-soft);color:var(--accent)}
+.tag-gov{background:rgba(100,100,100,.08);color:#555}
+/* Tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border-light);border-radius:8px;background:var(--surface)}
+#club-table{width:100%;border-collapse:collapse;font-size:12px}
+#club-table th{position:sticky;top:0;background:var(--surface);padding:10px 8px;text-align:left;font-weight:700;font-size:11px;color:var(--text3);border-bottom:2px solid var(--border);white-space:nowrap}
+#club-table td{padding:8px;border-bottom:1px solid var(--border-light);vertical-align:top;line-height:1.5}
+#club-table tr:hover{background:rgba(0,0,0,.02)}
+#club-table tr.selected{background:var(--accent-soft)}
+#club-table a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent-border)}
+#club-table a:hover{border-bottom-style:solid}
+#pod-table{width:100%;border-collapse:collapse;font-size:12px}
+#pod-table th{position:sticky;top:0;background:var(--surface);padding:10px 8px;text-align:left;font-weight:700;font-size:11px;color:var(--text3);border-bottom:2px solid var(--border);white-space:nowrap}
+#pod-table td{padding:8px;border-bottom:1px solid var(--border-light);vertical-align:top;line-height:1.5}
+#pod-table tr:hover{background:rgba(0,0,0,.02)}
+#pod-table tr.selected{background:var(--accent-soft)}
+#pod-table tr.has-price{background:rgba(139,58,42,.05)}
+#pod-table tr.has-price td{font-weight:500}
+#pod-table a{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent-border)}
+#pod-table a:hover{border-bottom-style:solid}
+.note{background:var(--accent-soft);padding:14px 18px;border-radius:8px;font-size:12px;line-height:1.6;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="sidebar">
+<div class="logo">Карта площадок<span>Денис Кабалкин · май–дек 2026</span></div>
+<div class="nav-section">Площадки</div>
+<div class="nav-item active" data-s="podcasts" onclick="togglePodMenu(event)"><span class="ico">⊙</span>Подкасты<span class="badge">74</span></div>
+<div id="pod-submenu" style="display:block;padding-left:32px;margin:4px 0 6px;border-left:2px solid var(--accent-border);margin-left:22px">
+<div class="nav-item" data-s="podcasts" data-pcat="youtube" style="font-size:13px;padding:8px 12px">YouTube-подкасты <span class="badge">18</span></div>
+<div class="nav-item" data-s="podcasts" data-pcat="other" style="font-size:13px;padding:8px 12px">Другие подкасты <span class="badge">56</span></div>
+</div>
+<div class="nav-item" data-s="conferences"><span class="ico">⊞</span>Конференции<span class="badge">45+</span></div>
+<div class="nav-item" data-s="clubs" onclick="toggleClubMenu(event)"><span class="ico">⬡</span>Бизнес-клубы<span class="badge">94</span></div>
+<div id="club-submenu" style="display:none;padding-left:32px;margin:4px 0 6px;border-left:2px solid var(--accent-border);margin-left:22px">
+<div class="nav-item" data-s="clubs" data-cat="federal" style="font-size:13px;padding:8px 12px">Федеральные ТОП <span class="badge">15</span></div>
+<div class="nav-item" data-s="clubs" data-cat="regional" style="font-size:13px;padding:8px 12px">Рег. чемпионы <span class="badge">17</span></div>
+<div class="nav-item" data-s="clubs" data-cat="branches" style="font-size:13px;padding:8px 12px">Филиалы <span class="badge">42</span></div>
+<div class="nav-item" data-s="clubs" data-cat="target" style="font-size:13px;padding:8px 12px">Целевые в регионах <span class="badge">29</span></div>
+</div>
+<div class="sidebar-footer">Вагэ Хачатрян · Спикерское продюсирование</div>
+</div>
+<div id="main">
+
+<!-- CONFERENCES -->
+<div class="section" id="s-conferences">
+<div class="eyebrow">Площадки</div>
+<h1>Конференции и форумы</h1>
+<div class="subtitle">35+ площадок с датами, аудиторией и каналами захода.</div>
+<div class="toolbar" id="conf-type-toolbar">
+<input class="search-box" id="conf-search" placeholder="Поиск по названию, городу, тематике..." oninput="filterConfs()">
+<button class="filter-btn active" data-f="all" onclick="toggleConfFilter(this)">Все</button>
+<button class="filter-btn" data-f="biz" onclick="toggleConfFilter(this)">Предпринимательские</button>
+<button class="filter-btn" data-f="digital" onclick="toggleConfFilter(this)">Digital</button>
+<button class="filter-btn" data-f="gov" onclick="toggleConfFilter(this)">Госфорумы</button>
+<button class="filter-btn" data-f="ecom" onclick="toggleConfFilter(this)">E-commerce</button>
+<button class="filter-btn" data-f="sng" onclick="toggleConfFilter(this)">СНГ</button>
+</div>
+<div class="toolbar" id="conf-size-toolbar" style="margin-top:-12px">
+<span style="font-size:11px;color:var(--text3);font-weight:600">Размер:</span>
+<button class="filter-btn active" data-s="all" onclick="toggleSizeFilter(this)">Все</button>
+<button class="filter-btn" data-s="large" onclick="toggleSizeFilter(this)">5 000+</button>
+<button class="filter-btn" data-s="medium" onclick="toggleSizeFilter(this)">1 000–5 000</button>
+<button class="filter-btn" data-s="small" onclick="toggleSizeFilter(this)">до 1 000</button>
+</div>
+<div class="card-grid" id="conf-grid"></div>
+</div>
+
+<!-- CLUBS -->
+<div class="section" id="s-clubs">
+<div class="eyebrow">Площадки</div>
+<h1>Бизнес-клубы и сообщества</h1>
+<div class="subtitle">103 площадки в 4 категориях. Полная карта для спикерского трека.</div>
+<div class="toolbar" id="club-cat-toolbar" style="margin-bottom:10px">
+<button class="filter-btn active" data-cat="federal" onclick="switchClubCat(this)">Федеральные ТОП (15)</button>
+<button class="filter-btn" data-cat="regional" onclick="switchClubCat(this)">Рег. чемпионы (17)</button>
+<button class="filter-btn" data-cat="branches" onclick="switchClubCat(this)">Филиалы (42)</button>
+<button class="filter-btn" data-cat="target" onclick="switchClubCat(this)">Целевые (29)</button>
+</div>
+<div class="toolbar" id="club-filter-toolbar">
+<input class="search-box" id="club-search" placeholder="Поиск по названию, городу..." oninput="filterClubs()">
+<button class="filter-btn active" data-f="all" onclick="toggleClubPriority(this)">Все</button>
+<button class="filter-btn" data-f="selected" onclick="toggleClubPriority(this)">✓ Выбранные</button>
+</div>
+<div id="club-summary" style="display:none;background:var(--accent-soft);padding:10px 16px;border-radius:8px;margin-bottom:12px;font-size:12px;line-height:1.6">
+<strong>Выбрано: <span id="club-count">0</span></strong> · <span id="club-names" style="color:var(--text2)"></span>
+</div>
+<div class="tbl-wrap">
+<table id="club-table">
+<thead><tr>
+<th style="width:30px"></th>
+<th>Клуб</th>
+<th>География</th>
+<th>Аудитория / Порог</th>
+<th id="club-members-th">Участников</th>
+<th>Стоимость</th>
+<th>Формат спикерства</th>
+<th>Почему подходит</th>
+</tr></thead>
+<tbody id="club-tbody"></tbody>
+</table>
+</div>
+</div>
+
+<!-- PODCASTS -->
+<div class="section active" id="s-podcasts">
+<div class="eyebrow">Подкасты</div>
+<h1>Все подкасты (74)</h1>
+<div class="subtitle">83 из базы + 8 из веб-ресёрча. Без дублей.</div>
+<div class="toolbar" id="pod-cat-toolbar" style="margin-bottom:10px">
+<button class="filter-btn active" data-cat="youtube" onclick="switchPodCat(this)">YouTube-подкасты (18)</button>
+<button class="filter-btn" data-cat="other" onclick="switchPodCat(this)">Другие подкасты (56)</button>
+</div>
+<div class="toolbar" id="pod-filter-toolbar">
+<input class="search-box" id="pod-search" placeholder="Поиск по названию, ведущему, теме..." oninput="filterPods()">
+<button class="filter-btn active" data-f="all" onclick="togglePodFilter(this)">Все</button>
+<button class="filter-btn" data-f="selected" onclick="togglePodFilter(this)">✓ Выбранные</button>
+</div>
+<div id="pod-summary" style="display:none;background:var(--accent-soft);padding:10px 16px;border-radius:8px;margin-bottom:12px;font-size:12px;line-height:1.6">
+<strong>Выбрано: <span id="pod-count">0</span></strong> · <span id="pod-names" style="color:var(--text2)"></span>
+</div>
+<div class="tbl-wrap">
+<table id="pod-table">
+<thead><tr>
+<th style="width:30px"></th>
+<th>Подкаст</th>
+<th>Ведущий</th>
+<th>Тема</th>
+<th>Аудитория</th>
+<th>Цена</th>
+<th>Город</th>
+<th>Примечание</th>
+</tr></thead>
+<tbody id="pod-tbody"></tbody>
+</table>
+</div>
+</div>
+
+<!-- END SECTIONS -->
+</div>
+
+<script>
+// ========== NAVIGATION ==========
+function togglePodMenu(e){
+e.stopPropagation();
+var sub=document.getElementById('pod-submenu');
+sub.style.display=sub.style.display==='none'?'block':'none';
+document.querySelectorAll('.nav-item').forEach(function(i){i.classList.remove('active')});
+e.currentTarget.classList.add('active');
+document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active')});
+document.getElementById('s-podcasts').classList.add('active');
+document.getElementById('main').scrollTo({top:0});
+}
+function toggleClubMenu(e){
+e.stopPropagation();
+var sub=document.getElementById('club-submenu');
+sub.style.display=sub.style.display==='none'?'block':'none';
+document.querySelectorAll('.nav-item').forEach(function(i){i.classList.remove('active')});
+e.currentTarget.classList.add('active');
+document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active')});
+document.getElementById('s-clubs').classList.add('active');
+document.getElementById('main').scrollTo({top:0});
+}
+document.querySelectorAll('.nav-item').forEach(function(item){
+item.addEventListener('click',function(){
+if(this.onclick)return;
+var cat=this.dataset.cat;
+document.querySelectorAll('.nav-item').forEach(function(i){i.classList.remove('active')});
+this.classList.add('active');
+document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active')});
+document.getElementById('s-'+this.dataset.s).classList.add('active');
+document.getElementById('main').scrollTo({top:0});
+var pcat=this.dataset.pcat;
+if(pcat&&typeof switchPodCat==='function'){
+document.querySelectorAll('#pod-cat-toolbar .filter-btn').forEach(function(b){
+b.classList.remove('active');
+if(b.dataset.cat===pcat)b.classList.add('active');
+});
+podCat=pcat;
+filterPods();
+}
+if(cat&&typeof switchClubCat==='function'){
+document.querySelectorAll('#club-cat-toolbar .filter-btn').forEach(function(b){
+b.classList.remove('active');
+if(b.dataset.cat===cat)b.classList.add('active');
+});
+currentClubCat=cat;
+filterClubs();
+}
+})
+});
+
+// ========== CONFERENCES DATA ==========
+const confs=[
+{name:"Synergy Global Forum",date:"Октябрь 2026 (ожид.)",city:"Москва / СПб",audience:"до 50 000",type:"biz",access:"paid",price:"1–5 млн ₽",desc:"Крупнейший предпринимательский форум. Лидерство, масштабирование, мотивация. Книга рекордов Гиннеса.",contact:"pr@synergy.ru, vvshibina@synergy.ru",site:"https://synergyglobal.ru/"},
+{name:"Альфа-Конфа 2026",date:"Весь год, 60+ городов",city:"Россия",audience:"200 000+/год",type:"biz",access:"invite",price:"Гонорар от банка",desc:"Тур по городам РФ. Альфа-Банк оплачивает спикеров. Собственники МСБ.",contact:"sme@alfabank.ru",site:"https://alfabank.ru/sme/confa/"},
+{name:"Предпринимательский класс РБК",date:"2 главных + регионы",city:"Москва + регионы",audience:"1 000+/событие",type:"biz",access:"paid",price:"По пакету участия",desc:"Конференция для предпринимателей. Рыбаков, Ильяхов, спикеры РБК. Нетворкинг, инсайты.",contact:"businessclass@rbc.ru",site:"https://businessclass.rbc.ru/"},
+{name:"Global Tech Forum",date:"16 октября 2026",city:"Москва, Кластер «Ломоносов»",audience:"2 000+",type:"biz",access:"paid",price:"15 000–30 000 ₽ (билет)",desc:"Цифровая трансформация бизнеса. 120+ спикеров. Яндекс, ВТБ, МТС, Сбер, VK. Треки: GlobalTech, HRTech, ClientTech, MarketingTech.",contact:"globaltechforum.ru, t.me/bforums_ru",site:"https://globaltechforum.ru/"},
+{name:"TECH WEEK 2026",date:"17–18 июня",city:"Москва, ВДНХ, Техноград",audience:"3 600+",type:"biz",access:"paid",price:"от 12 000 ₽ (билет)",desc:"11 конференций в одной. AI, e-com, HR, маркетинг. Основатели стартапов, руководители, топ-менеджеры.",contact:"techweek.moscow",site:"https://techweek.moscow/"},
+{name:"ПМЭФ-2026",date:"3–6 июня",city:"Санкт-Петербург, Экспофорум",audience:"22 000+",type:"gov",access:"invite",price:"1,2 млн ₽ (делегат)",desc:"Петербургский международный экономический форум. Спикерство через Фонд Росконгресс.",contact:"info@roscongress.org",site:"https://forumspb.com/"},
+{name:"ВЭФ-2026",date:"1–4 сентября",city:"Владивосток, ДВФУ",audience:"8 000+",type:"gov",access:"invite",price:"По приглашению",desc:"Восточный экономический форум. Трек «Технологическое развитие».",contact:"info@roscongress.org",site:"https://forumvostok.ru/"},
+{name:"ЦИПР-2026",date:"19–22 мая",city:"Нижний Новгород",audience:"15 000+",type:"gov",access:"free",price:"Бесплатно (CFP)",desc:"Конференция по цифровой экономике. 140+ сессий, 40 стран. Заявка speaker@cipr.ru.",contact:"speaker@cipr.ru",site:"https://cipr.ru/"},
+{name:"Иннопром-2026",date:"6–9 июля",city:"Екатеринбург",audience:"52 000+",type:"gov",access:"invite",price:"Через партнёрство",desc:"Международная промышленная выставка. 900+ предприятий. Digital-трансформация промышленности.",contact:"Через FCongress/Минпромторг",site:"https://innoprom.com/"},
+{name:"Kazan Digital Week",date:"29–31 октября",city:"Казань Экспо",audience:"20 000+",type:"digital",access:"free",price:"Бесплатно (CFP)",desc:"Международный digital-форум. 70+ стран. Регистрация спикеров до 1 августа.",contact:"help@kazandigitalweek.com",site:"https://kazandigitalweek.com/"},
+{name:"Tagline Awards 2026",date:"4 декабря",city:"Москва",audience:"1 500+",type:"digital",access:"paid",price:"12 500–18 500 ₽ (подача кейса)",desc:"Крупнейшая digital-премия Европы. Денис — член жюри или выступление при награждении.",contact:"tagline.ru/welcome",site:"https://tagline.ru/awards/"},
+{name:"Russian Digital Week (Tagline)",date:"Конец мая — нач. июня",city:"Москва",audience:"400+",type:"digital",access:"free",price:"Бесплатно (CFP)",desc:"Летняя конференция Tagline. Топы агентств. «Управление digital-агентством».",contact:"conf.tagline.ru",site:"https://tagline.ru/"},
+{name:"Optimization (Ашманов)",date:"Ноябрь",city:"Москва + онлайн",audience:"5 000+",type:"digital",access:"free",price:"Бесплатно (CFP)",desc:"25-я юбилейная. SEO/контекст/performance. Программный отбор.",contact:"club.optimization.ru",site:"https://optimization.ru/"},
+{name:"MAC (Ruward)",date:"Сентябрь",city:"Москва",audience:"1 000+ owners",type:"digital",access:"free",price:"Бесплатно (CFP)",desc:"Самая концентрированная конференция по агентскому бизнесу. 7 потоков, 100+ докладов.",contact:"ruward.ru",site:"https://ruward.ru/"},
+{name:"БДД (Baltic Digital Days)",date:"7–8 августа",city:"Калининград",audience:"350+",type:"digital",access:"free",price:"Бесплатно (CFP)",desc:"Легендарный нетворкинг. Владельцы агентств РФ и СНГ. Приоритет! CFP дедлайн: май.",contact:"balticdigitaldays.ru",site:"https://balticdigitaldays.ru/"},
+{name:"Суровый Питерский SMM",date:"24–25 октября",city:"СПб + онлайн",audience:"2 500+",type:"digital",access:"free",price:"Бесплатно (CFP)",desc:"12 потоков. Организаторы Румянцев, Франкель. CFP открыт для практиков.",contact:"smmconfa.ru",site:"https://smmconfa.ru/"},
+{name:"Матемаркетинг 2026",date:"26–27 ноября",city:"Москва + онлайн",audience:"2 000+",type:"digital",access:"free",price:"Бесплатно (CFP)",desc:"Perf-маркетологи и аналитики. Сквозная аналитика, closed-loop через единый кабинет.",contact:"matemarketing.ru",site:"https://matemarketing.ru/"},
+{name:"Стачка 2026",date:"3–4 октября",city:"Санкт-Петербург",audience:"3 000+",type:"digital",access:"free",price:"Бесплатно (CFP)",desc:"Разработчики, маркетологи, владельцы IT-компаний. Поток «Управление» + «Digital-маркетинг».",contact:"nastachku.ru",site:"https://nastachku.ru/"},
+{name:"Ural Digital Weekend",date:"Конец июля — нач. авг.",city:"Пермь",audience:"500+",type:"digital",access:"free",price:"Бесплатно (CFP)",desc:"Главная региональная агентская конференция Урала. Фаундеры digital-продакшнов.",contact:"conf@digital-spectr.ru",site:"https://t.me/ural_digital_weekend"},
+{name:"ECOM Expo'26",date:"24–25 июня",city:"Москва, Тимирязев Центр",audience:"15 000+",type:"ecom",access:"paid",price:"200–500 тыс. ₽ (стенд+спикер)",desc:"Крупнейшая e-com выставка. Для бизнеса вход бесплатный. Тема: кэшбэк для роста маржинальности.",contact:"expo@oborot.ru",site:"https://expo.oborot.ru/"},
+{name:"AdIndex City Conference",date:"Июнь",city:"Москва, Loft Hall",audience:"2 000+",type:"digital",access:"paid",price:"~500 тыс. ₽ (спонсор)",desc:"Маркетологи и медиаменеджеры крупных брендов. Дедлайн заявок: март–апрель.",contact:"partners@adindex.ru",site:"https://adindex.ru/"},
+{name:"Yandex Ecom Open Air",date:"21 августа",city:"Москва",audience:"1 000+",type:"ecom",access:"invite",price:"По приглашению",desc:"B2B-фестиваль Яндекса. B2B-фестиваль для e-com. Партнёры: Яндекс, Ozon, WB.",contact:"ecomfest.ru",site:"https://ecomfest.ru/"},
+{name:"CNews Forum",date:"12 ноября",city:"Москва",audience:"1 700+",type:"digital",access:"free",price:"Бесплатно (контент)",desc:"ИТ-директора и заказчики. Кейсы импортозамещения и цифровой трансформации.",contact:"forum@cnewsconf.ru",site:"https://cnewsforum.ru/"},
+{name:"Digital Learning 2026",date:"19 ноября",city:"Москва",audience:"400+",type:"digital",access:"free",price:"Финалисты премии — бесплатно",desc:"Корп-обучение. Финалисты премии получают гарантированный спикерский слот.",contact:"dlmeeting.online",site:"https://dlmeeting.online/"},
+{name:"Премия Рунета 2026",date:"Декабрь",city:"Москва",audience:"500+",type:"digital",access:"free",price:"Подача бесплатно",desc:"Главная IT-премия. Медийный охват. Подача заявок с июля–августа.",contact:"premiaruneta.ru",site:"https://premiaruneta.ru/"},
+{name:"Conversations 2026",date:"25–26 июня",city:"Санкт-Петербург",audience:"1 000+",type:"digital",access:"paid",price:"По запросу",desc:"Конференция по генеративному и разговорному AI для бизнеса. 2 дня, 4 трека, 40+ докладов.",contact:"Через сайт",site:"https://conversations-ai.ru/"},
+{name:"InterForum: B2B Marketing",date:"26–27 ноября",city:"Москва",audience:"200+",type:"biz",access:"paid",price:"от 45 000 ₽ (билет)",desc:"X Всероссийский B2B Marketing Forum. Директора по маркетингу крупных компаний.",contact:"interforums.ru",site:"https://interforums.ru/"},
+{name:"Astana Hub / Digital Bridge",date:"Осень 2026",city:"Астана",audience:"3 000+",type:"sng",access:"free",price:"Бесплатно (CFP)",desc:"Выход на казахский digital-рынок. CFP открыт.",contact:"astanahub.com",site:"https://astanahub.com/"},
+{name:"ICT Week Uzbekistan",date:"22–25 сентября",city:"Ташкент",audience:"5 000+",type:"sng",access:"free",price:"Бесплатно",desc:"Web Summit Spotlight + Startup & Venture Summit. Регистрация открыта.",contact:"ictweek.uz",site:"https://ictweek.uz/"},
+{name:"IT Space Belarus",date:"3 октября",city:"Минск",audience:"1 000+",type:"sng",access:"free",price:"Бесплатно",desc:"IT-конференция. Нетворкинг с белорусскими product-командами.",contact:"itspace.by",site:"https://itspace.by/"},
+{name:"REFORUM / Winning the Hearts",date:"2026",city:"Онлайн + оффлайн",audience:"5 000+",type:"biz",access:"free",price:"По приглашению PR",desc:"Международный форум. Аудитория: Сбер, Альфа, СИБУР, МТС, Сколково. Тема 2026 — «Алхимия v.2026».",contact:"winningthehearts.com",site:"https://winningthehearts.com/"},
+{name:"Горки «На базе»",date:"29–31 мая",city:"Доброград (2,5ч от Москвы)",audience:"700 предпринимателей",type:"biz",access:"paid",price:"от ~100 000 ₽ (билет)",desc:"Бизнес-кемп школы «Горки». 3 дня: мастермайнды, кейс-разборы, панельные дискуссии, премия. Попечители: Орешкин, Токовинин (amoCRM), Титов, Седов (Askona/Доброград), Гребенюк, Ванин (экс-Сбер). Семьи, спорт, нетворкинг. ПРИОРИТЕТ!",contact:"businesscampgorki.ru",site:"https://businesscampgorki.ru/"},
+{name:"Атланты Сити",date:"22–26 июня",city:"Сочи, Курорт Красная Поляна",audience:"3 000+ предпринимателей с семьями",type:"biz",access:"paid",price:"от 150 000 ₽ (билет)",desc:"Главный фестиваль предпринимателей. 5 дней. 65 спикеров, 200+ часов контента, 50+ форум-групп. Хартманн, Спиридонов, Васильчук, Гидирим (YouDo), Левицкий, Фомин, Цыпкин. 3 концерта. Бизнес + отдых с семьёй. ПРИОРИТЕТ!",contact:"atlantycity.ru",site:"https://atlantycity.ru/"},
+{name:"Атланты Форум",date:"28–30 июля",city:"Санкт-Петербург",audience:"1 400+",type:"biz",access:"invite",price:"По приглашению",desc:"Закрытый выезд резидентов. Оборот участников до 5 млрд ₽.",contact:"hello@atlanty.ru",site:"https://atlanty.ru/"},
+{name:"Forbes Congress",date:"В течение года",city:"Москва",audience:"300–500",type:"biz",access:"paid",price:"1–3 млн ₽ (партнёрский пакет)",desc:"Инвесторы, банки, первые лица. Площадка St. Regis.",contact:"fcongress@forbes.ru",site:"https://www.forbes.ru/"},
+{name:"Forbes «30 до 30»",date:"15 сентября",city:"Москва",audience:"500+",type:"biz",access:"paid",price:"По запросу",desc:"Forbes + Бизнес-клуб ВШЭ. Рейтинг лидеров нового поколения. Формат для CEO нового типа — прямой фит для Дениса.",contact:"fcongress.timepad.ru",site:"https://fcongress.timepad.ru/events/"},
+{name:"Битрикс24.Идея",date:"В течение года, по городам",city:"Москва + регионы",audience:"2 000+/город",type:"biz",access:"invite",price:"Гонорар от Битрикс24",desc:"Конференция Битрикс24 для предпринимателей. Хедлайнеры — Манн, Батырев. Стратегии, продажи, маркетинг, технологии.",contact:"bitrix24.ru",site:"https://www.bitrix24.ru/"},
+{name:"Гроуинг.Фокус",date:"Регулярно",city:"Москва / Минск",audience:"300–500",type:"biz",access:"paid",price:"По запросу",desc:"Камерная бизнес-конференция. Батырев — хедлайнер. Прорывные решения для роста бизнеса.",contact:"Через сайт",site:"https://growing.focus/"},
+{name:"RUTALKS-CEO Russia",date:"Регулярно",city:"Москва",audience:"60–150/событие",type:"biz",access:"paid",price:"По членству",desc:"Бизнес-клуб CEO. 80+ мероприятий. Собственники, гендиректоры, топ-менеджеры. Деловые завтраки и конференции.",contact:"rutalks.timepad.ru",site:"https://rutalks.timepad.ru/events/"},
+{name:"Epic Growth Conference",date:"2026",city:"Москва + онлайн",audience:"1 000+",type:"digital",access:"paid",price:"от 15 000 ₽",desc:"Продуктовая конференция. Стратегии роста, AI в продукте и маркетинге. 30+ спикеров.",contact:"epicgrowth.timepad.ru",site:"https://epicgrowth.timepad.ru/events/"},
+{name:"BRICS+ Business Club Forum",date:"Регулярно",city:"Москва",audience:"100–300",type:"biz",access:"free",price:"Бесплатно (по регистрации)",desc:"Международный бизнес-клуб. Деловые форумы для предпринимателей и экспертов. Можно выступить спикером.",contact:"bricsclub.timepad.ru",site:"https://bricsclub.timepad.ru/events/"},
+{name:"Менеджерское братство",date:"Регулярно",city:"Онлайн",audience:"500–2 000",type:"biz",access:"paid",price:"По запросу",desc:"Онлайн-конференции Батырева. Приглашённые спикеры — CEO и предприниматели. Канал захода для Дениса.",contact:"mb.community",site:"https://mb.community/"},
+{name:"GEF Forum",date:"Осень 2026",city:"Сочи",audience:"300+",type:"digital",access:"paid",price:"По запросу",desc:"Форум по маркетингу, PR и коммуникациям. Спикеры крупных компаний (Мантера, MITT, Tagline).",contact:"gefforum.com",site:"https://gefforum.com/"},
+{name:"Summer Merge",date:"3–5 июля",city:"Ульяновская обл. (берег Волги)",audience:"300+",type:"digital",access:"paid",price:"По запросу",desc:"Неформальная IT-конференция на природе. Управление, маркетинг, тайм-менеджмент. Йога, квизы, нетворкинг.",contact:"Через сайт",site:"https://summermerge.ru/"},
+{name:"Digital Minsk 2026",date:"Май",city:"Минск",audience:"300+",type:"sng",access:"paid",price:"По запросу",desc:"Владельцы digital-агентств и web-студий, руководители продаж, IT-маркетологи.",contact:"workspace.ru/events",site:"https://workspace.ru/events/"},
+{name:"Leader-ID / Точки кипения",date:"Ежедневно по всей РФ",city:"Россия (100+ городов)",audience:"4+ млн на платформе",type:"biz",access:"free",price:"Бесплатно",desc:"Платформа для лидеров. Бесплатные мероприятия в Точках кипения. Заявка на спикерство через платформу. Массовый охват регионов.",contact:"leader-id.ru",site:"https://leader-id.ru/events"},
+{name:"Онлайн-конференции Битрикс24",date:"Регулярно",city:"Онлайн",audience:"5 000–10 000",type:"biz",access:"free",price:"Бесплатно",desc:"Открытые конференции Битрикс24 (Хартманн выступал на «Недвижка 2026»). Быстрый заход с массовым охватом.",contact:"bitrix24.ru",site:"https://www.bitrix24.ru/"},
+];
+
+// ========== CONFERENCES RENDER ==========
+function renderConfs(list){
+var g=document.getElementById('conf-grid');
+var vd=['Регулярно','2026','В течение года','В течение года, по городам','Весь год, 60+ городов','Ежедневно по всей РФ'];
+g.innerHTML=list.map(function(c){
+var url=c.site.startsWith('http')?c.site:('https://'+c.site);
+var dateStr=c.date||'Дата уточняется';
+var dateFmt=vd.indexOf(c.date)>-1?'<span style="color:var(--text3);font-style:italic">'+dateStr+'</span>':'<strong>'+dateStr+'</strong>';
+return '<div class="card" data-type="'+c.type+'" data-access="'+c.access+'">'+
+'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">'+
+'<h3 style="margin:0"><a href="'+url+'" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px dashed var(--accent-border)">'+c.name+'</a> <a href="'+url+'" target="_blank" rel="noopener" style="font-size:12px;color:var(--text3);text-decoration:none">↗</a></h3>'+
+'<div class="tags" style="margin:0">'+(c.access==='free'?'<span class="tag tag-free">Бесплатно CFP</span>':c.access==='paid'?'<span class="tag tag-paid">'+c.price+'</span>':'<span class="tag tag-invite">По приглашению</span>')+' '+(c.type==='digital'?'<span class="tag tag-digital">Digital</span>':c.type==='biz'?'<span class="tag tag-biz">Бизнес</span>':c.type==='gov'?'<span class="tag tag-gov">Госфорум</span>':c.type==='ecom'?'<span class="tag tag-digital">E-com</span>':'<span class="tag tag-sng">СНГ</span>')+'</div>'+
+'</div>'+
+'<div class="meta" style="margin-top:6px">📅 '+dateFmt+' &nbsp;·&nbsp; 📍 '+c.city+' &nbsp;·&nbsp; 👥 '+c.audience+'</div>'+
+'<p>'+c.desc+'</p>'+
+'<div class="meta" style="margin-top:8px;font-size:12px"><span>📧 '+c.contact+'</span><span>🔗 <a href="'+url+'" target="_blank" rel="noopener" style="color:var(--accent)">'+c.site.replace('https://','').replace(/\/$/,'')+'</a></span></div>'+
+'</div>';
+}).join('');
+}
+renderConfs(confs);
+var confFilterType='all';
+var confFilterSize='all';
+function toggleConfFilter(btn){
+document.querySelectorAll('#conf-type-toolbar .filter-btn').forEach(function(b){b.classList.remove('active')});
+btn.classList.add('active');
+confFilterType=btn.dataset.f;
+filterConfs();
+}
+function toggleSizeFilter(btn){
+document.querySelectorAll('#conf-size-toolbar .filter-btn').forEach(function(b){b.classList.remove('active')});
+btn.classList.add('active');
+confFilterSize=btn.dataset.s;
+filterConfs();
+}
+function getAudienceNum(str){
+var m=str.replace(/\s/g,'').match(/(\d[\d,.]*)/);
+if(!m)return 0;
+return parseInt(m[1].replace(/[,.]/g,''));
+}
+function filterConfs(){
+var q=document.getElementById('conf-search').value.toLowerCase();
+var list=confs.filter(function(c){
+if(confFilterType!=='all'&&c.type!==confFilterType)return false;
+if(confFilterSize!=='all'){
+var num=getAudienceNum(c.audience);
+if(confFilterSize==='large'&&num<5000)return false;
+if(confFilterSize==='medium'&&(num<1000||num>=5000))return false;
+if(confFilterSize==='small'&&num>=1000)return false;
+}
+if(!q)return true;
+return (c.name+c.city+c.desc+c.date+c.contact).toLowerCase().indexOf(q)>-1;
+});
+renderConfs(list);
+}
+
+// ========== CLUBS DATA ==========
+const clubsData={
+"federal":[{"priority": "A", "name": "Атланты", "city": "Москва, СПб, Ростов, Дубай", "audience": "Собств. от 60 млн ₽ / Топ от 5 млрд. Ср. оборот 1,5 млрд ₽", "members": "1400+", "price": "~750 тыс ₽/год", "format": "«Атланты говорят» — 200 событий/год, приглашённые спикеры", "site": "atlanty.ru", "contact": "@atlanty_club, info@atlanty.ru", "why": "Точная ЦА (собственники 100М+). Есть Атланты CMO Club — прямой digital-матч. Максимальный охват за 1 заход"}, {"priority": "A", "name": "Эквиум (Equium)", "city": "28 городов РФ + 8 стран", "audience": "Оборот 80–100 млн ₽, рост 20%, бизнес 3+ лет. Совокупный оборот 550 млрд ₽", "members": "850+", "price": "~450 тыс ₽/год", "format": "Equium Talks с приглашёнными спикерами", "site": "equium.community", "contact": "По городам (см. вкладку 3)", "why": "Единственная сеть, покрывающая ВСЕ регионы — от Калининграда до Владивостока. 1 заявка = 28 городов"}, {"priority": "A", "name": "Клуб Первых (СберПервый)", "city": "Москва, СПб + региональные саммиты", "audience": "Собств. от 500 млн / Топ от 3 млрд. Ср. оборот 4,2 млрд ₽", "members": "800–1000", "price": "МСК 690 / СПб 590 / рег. 440 тыс ₽/год", "format": "120+ мероприятий/год с приглашёнными", "site": "clubfirst.ru", "contact": "clubfirst.ru", "why": "Самый высокий средний чек участников. Прямой выход на CEO 500М+. Региональные саммиты — бонус"}, {"priority": "A", "name": "Forbes Club", "city": "Москва, СПб", "audience": "Оборот от 500 млн ₽. ~300 статусных членов", "members": "~300", "price": "1–3 млн ₽/год", "format": "Public Talk (50+/год) — флагманский формат", "site": "club.forbes.ru", "contact": "club.forbes.ru", "why": "Имиджевая площадка №1. Медиа-эффект Forbes. Выступление = контент для пресс-кита Дениса"}, {"priority": "A", "name": "R2", "city": "Москва, Дубай", "audience": "МСБ от 200 млн / Крупный от 7 млрд. Малые группы 8–11 чел.", "members": "8–11/группу", "price": "500 тыс — 3 млн ₽/год", "format": "Бизнес-завтраки с экспертами раз в 2 мес", "site": "r2.club", "contact": "r2.club", "why": "Камерный формат — глубокое вовлечение. Идеально для менторства: после выступления → личные консультации"}, {"priority": "B", "name": "Club 500", "city": "Москва, СПб, Краснодар, Дубай", "audience": "Оборот 100–200 млн ₽. Ср. оборот 1,8–2,6 млрд ₽", "members": "700–1000", "price": "820 тыс ₽/год", "format": "760+ событий/год, приглашённые спикеры", "site": "club500.com", "contact": "club500.com", "why": "⚠️ Репутационный риск (Шабутдинов). Но аудитория релевантная и активная"}, {"priority": "A", "name": "Сколково Alumni", "city": "Москва + региональные клубы", "audience": "Через MBA-программы. 64 000 в базе", "members": "64 000", "price": "Через обучение", "format": "90+ событий/мес от 20+ клубов по интересам", "site": "skolkovo.ru/alumni", "contact": "skolkovo.ru", "why": "Масштаб базы. Есть профильные клубы: IT, маркетинг, стратегия. Выступление в Сколково = статусный маркер"}, {"priority": "B", "name": "EVOLUT", "city": "Москва, Казань, Екатеринбург", "audience": "Оборот от 200 млн ₽, реальный сектор", "members": "Десятки", "price": "По запросу (премиум)", "format": "Встречи с приглашёнными спикерами", "site": "evolutclub.com", "contact": "evolutclub.com", "why": "Фокус на реальный сектор — контраст с инфобизом. Хорошо для позиционирования Дениса как «серьёзного CEO»"}, {"priority": "A", "name": "«Основатели»", "city": "Москва + федерально", "audience": "Оборот от 100 млн ₽. 90+ событий/год, 5 сфер", "members": "90+ событий/год", "price": "По запросу", "format": "Регулярные встречи с приглашёнными", "site": "osnovateli.org", "contact": "osnovateli.org", "why": "Порог 100 млн = точное попадание в ЦА Дениса. Без раздувания аудитории «мелочью»"}, {"priority": "B", "name": "Reforma (Спиридонов)", "city": "Москва, СПб, онлайн", "audience": "Собств. от 30 млн / Топ от 100 млн. 300+ резидентов", "members": "300+", "price": "По запросу", "format": "Встречи с фаундерами топ-компаний", "site": "reforma.business", "contact": "reforma.business", "why": "Tech/digital-ориентированная аудитория. Спиридонов сам из digital — органичный контекст для Kokoc"}, {"priority": "B", "name": "«Масштаб» (Аветов)", "city": "Москва, выездные", "audience": "Предприниматели разного уровня", "members": "Сотни", "price": "Бесплатный тест-месяц", "format": "100+ мастер-классов/год", "site": "mashtab.club", "contact": "mashtab.club", "why": "Большой охват, но аудитория размытая. Хорош для узнаваемости, не для конверсии в менторство"}, {"priority": "C", "name": "Альфа A-Club", "city": "14 городов", "audience": "Private banking от $1 млн", "members": "Тысячи", "price": "Через банк", "format": "Иногда public talks, lifestyle", "site": "alfabank.ru/a-club", "contact": "alfabankpro.ru", "why": "Богатая аудитория, но формат lifestyle — не бизнес-спикерство. Заход через банк сложный"}, {"priority": "C", "name": "ClubFirst Future", "city": "Москва", "audience": "Предприниматели 18–35", "members": "Сотни", "price": "По запросу", "format": "Встречи с менторами", "site": "clubfirstfuture.ru", "contact": "clubfirstfuture.ru", "why": "Молодая аудитория — не ЦА для менторства 100М+, но хорош для охвата и контента"}, {"priority": "A", "name": "IMPACTUM", "city": "9 чаптеров по РФ + онлайн", "audience": "Предприниматели — ролевые модели", "members": "Растущее сообщество", "price": "По запросу", "format": "Чаптеры с приглашёнными спикерами, мероприятия", "site": "impactum.community", "contact": "t.me/koz_k", "why": "Федеральная сеть чаптеров как у Эквиума. 9 городов = мини-турне. Приглашают внешних спикеров."}],
+"regional":[{"priority": "A", "name": "REACTOR Business Network", "city": "Ростов, Краснодар, Волгоград, Ставрополь", "audience": "211 резидентов, Top-20 Forbes. 819 встреч за 7 лет", "members": "211", "price": "По запросу", "format": "REACTOR Study — открытый форум, 100+ топ-спикеров на сцене", "site": "reactor-network.ru", "contact": "reactor-network.ru", "why": "Главный клуб Юга. Готовая сцена с историей. 4 города одним заходом"}, {"priority": "A", "name": "SIBIRYAKCLUB", "city": "Краснодар", "audience": "100+ собственников, обороты 30 млн — 5 млрд ₽", "members": "100+", "price": "По запросу", "format": "500+ событий за 4 года, регулярно приглашают спикеров", "site": "sibiryakclub.ru", "contact": "sibiryakclub.ru", "why": "Плотная аудитория собственников. Краснодар — новая бизнес-столица Юга"}, {"priority": "B", "name": "Quantum Club", "city": "Краснодар", "audience": "500+ участников, есть миллиардеры", "members": "500+", "price": "Бесплатно", "format": "100+ мероприятий/год, открытый формат", "site": "quantum-club.ru", "contact": "quantum-club.ru", "why": "Открытый вход — легко зайти. Большой охват. Хорош как «первый шаг» на Краснодар"}, {"priority": "A", "name": "«Магнат»", "city": "Екатеринбург", "audience": "700–1000+ резидентов, премиум от 100 млн ₽ оборот", "members": "700–1000+", "price": "По запросу", "format": "500+ событий/год, активно зовут спикеров (Черных, Мраморов)", "site": "магнат.рф", "contact": "магнат.рф", "why": "Крупнейший клуб Урала. Масштаб сравним с Атлантами. Активно ищут спикеров"}, {"priority": "B", "name": "«Бизнес Среда» (Зубарев)", "city": "Екатеринбург", "audience": "Предприниматели Урала, сотни резидентов", "members": "Сотни", "price": "По запросу", "format": "Основной формат — «Встреча со спикером»", "site": "sreda.bz", "contact": "sreda.bz", "why": "Крупнейшее сообщество Урала. Формат «встреча со спикером» = готовый слот"}, {"priority": "A", "name": "PRIDE Community + Бизнес Драйв", "city": "Новосибирск + 19 городов Сибири/Урала", "audience": "Предприниматели, 200+ на нетворкинг", "members": "200+ на событие", "price": "По запросу", "format": "Нетворкинги 200+ человек, форумы", "site": "prideforum.ru", "contact": "prideforum.ru", "why": "Сильнейший канал Сибири. 19 городов. Никита Савельев. 1 заход = весь регион"}, {"priority": "B", "name": "Клуб «Миллиард»", "city": "Красноярск", "audience": "Оборот от 1 млрд до 100 млрд ₽", "members": "Десятки", "price": "По запросу", "format": "Закрытые встречи, приглашённые", "site": "миллиард.рф", "contact": "миллиард.рф", "why": "Суперпремиальная аудитория. Маленькая, но каждый участник = потенциальный клиент менторства"}, {"priority": "B", "name": "MFS (Man From Siberia)", "city": "Барнаул", "audience": "120+ резидентов, крупнейший форум Алтая", "members": "120+ / 500+ на форуме", "price": "По запросу", "format": "Форум MFS 500+ участников", "site": "mfs.club", "contact": "mfs.club", "why": "Монополист Алтайского края. Форум — хорошая разовая площадка"}, {"priority": "A", "name": "«Деловая Жизнь»", "city": "Пермь", "audience": "140 резидентов, 350 млн ₽ сделок между резидентами в 2024", "members": "140", "price": "По запросу", "format": "50+ мероприятий/год, мастер-классы", "site": "delolife.club", "contact": "delolife.club", "why": "Активнейший региональный клуб. Президент = председатель ПРО Опора России. Связи на уровне"}, {"priority": "B", "name": "«Сердце Нижнего»", "city": "Нижний Новгород", "audience": "2000+ нижегородских предпринимателей", "members": "2000+", "price": "По запросу", "format": "Связан с «Проект Прорыв», регулярные встречи", "site": "heart-nn.ru", "contact": "heart-nn.ru", "why": "Большая база. НН — третий город по бизнес-активности после МСК/СПб"}, {"priority": "B", "name": "«10 Менторов»", "city": "Казань", "audience": "80+ резидентов, спикеры из Сколково/Синергии", "members": "80+", "price": "По запросу", "format": "Встречи с менторами — основной формат", "site": "10mentor.ru", "contact": "10mentor.ru", "why": "Формат менторства = прямой матч с продуктом Дениса (менторство)"}, {"priority": "B", "name": "Vision.Ufa", "city": "Уфа", "audience": "Элитный закрытый, доступ к министрам РБ", "members": "Десятки", "price": "По запросу", "format": "Закрытые встречи с VIP", "site": "vision-ufa.com", "contact": "vision-ufa.com", "why": "GR-компонент: доступ к чиновникам + элитный бизнес Башкортостана"}, {"priority": "A", "name": "Клуб предпринимателей ДВ", "city": "Владивосток, Хабаровск, Находка, Биробиджан", "audience": "Собств. от 60 млн / Топ от 2 млрд. 300+ резидентов", "members": "300+", "price": "По запросу", "format": "Дальневосточный Форум Ритейла, регулярные встречи", "site": "club-np.ru", "contact": "club-np.ru", "why": "Единственный серьёзный заход на ДВ. Покрывает весь регион. Порог 60М = ЦА"}, {"priority": "B", "name": "ЗБС «Сахалин»", "city": "Южно-Сахалинск", "audience": "200+ владельцев среднего/крупного бизнеса ДВ", "members": "200+", "price": "По запросу", "format": "Закрытые встречи", "site": "zbclub.ru", "contact": "zbclub.ru", "why": "Сахалин — нефтегаз + рыба = высокие обороты. Экзотика для спикера, но деньги реальные"}, {"priority": "A", "name": "«Деловые петербуржцы»", "city": "Санкт-Петербург", "audience": "120+ резидентов, общий оборот 45 млрд ₽", "members": "120+", "price": "По запросу", "format": "Зовут Хакамаду, Артемьева, Ситникова", "site": "dp-club.ru", "contact": "dp-club.ru", "why": "Сильнейший локальный клуб СПб (не филиал федерального). Статусные спикеры = статусная площадка"}, {"priority": "B", "name": "«Эталон» СПб", "city": "Санкт-Петербург", "audience": "210+ резидентов, оборот 108 млрд ₽", "members": "210+", "price": "400 тыс ₽ вступ.", "format": "Закрытые встречи, приглашённые", "site": "etalon.club", "contact": "etalon.club", "why": "Высокий совокупный оборот. Альтернатива филиалам Атлантов/Эквиума в СПб"}, {"priority": "B", "name": "MOST Business Club", "city": "Ростов, Ставрополь, Екб, СПб", "audience": "Предприниматели, мультигород", "members": "Десятки", "price": "По запросу", "format": "Закрытые встречи", "site": "mostbiz.ru", "contact": "+7 995 288-66-00", "why": "4 города. Не самый крупный, но активный"}],
+"branches":[{"priority": "A", "name": "Эквиум СПб", "city": "Санкт-Петербург", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium-nw.club", "contact": "Лидер Павел Фролов, @alkate88", "why": ""}, {"priority": "A", "name": "Эквиум Казань (Татарстан)", "city": "Казань", "audience": "Оборот 80–100 млн ₽. Совокупный 22,2 млрд ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community/tatarstan", "contact": "tatarstan@equium.club, +7 906 322-52-75", "why": "Сильный чаптер с большим оборотом"}, {"priority": "A", "name": "Эквиум Екатеринбург", "city": "Екатеринбург", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community/yekaterinburg", "contact": "equium.community", "why": ""}, {"priority": "A", "name": "Эквиум Новосибирск", "city": "Новосибирск", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community/novosibirsk", "contact": "nsk@equium.club", "why": ""}, {"priority": "A", "name": "Эквиум Ростов-на-Дону", "city": "Ростов-на-Дону", "audience": "Оборот от 100 млн ₽", "members": "Эквиум (750+)", "price": "350 тыс ₽/год", "format": "Equium Talks", "site": "equiumrnd.club", "contact": "+7 928 114-01-14", "why": ""}, {"priority": "A", "name": "Эквиум Краснодар", "city": "Краснодар", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium-krd.club", "contact": "Роман Фингелькурц", "why": ""}, {"priority": "A", "name": "Эквиум Уфа", "city": "Уфа", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community", "contact": "+7 917 424-08-72, А. Оводов", "why": ""}, {"priority": "A", "name": "Эквиум Тюмень", "city": "Тюмень", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community/tyumen", "contact": "tyumen@equium.club, К. Аминзода", "why": ""}, {"priority": "A", "name": "Эквиум Самара", "city": "Самара", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium-samara.club", "contact": "Илья Руднев", "why": ""}, {"priority": "B", "name": "Эквиум Нижний Новгород", "city": "Нижний Новгород", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community", "contact": "nnv@equium.club, Максим Сунозов", "why": ""}, {"priority": "B", "name": "Эквиум Челябинск", "city": "Челябинск", "audience": "Оборот 80–100 млн ₽. Совокупный 29,9 млрд ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community", "contact": "equium.community", "why": "Высокий совокупный оборот"}, {"priority": "B", "name": "Эквиум Волгоград", "city": "Волгоград", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community", "contact": "", "why": ""}, {"priority": "B", "name": "Эквиум Саратов", "city": "Саратов", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community", "contact": "", "why": ""}, {"priority": "B", "name": "Эквиум Ульяновск", "city": "Ульяновск", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community", "contact": "", "why": ""}, {"priority": "B", "name": "Эквиум Калининград", "city": "Калининград", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community", "contact": "", "why": ""}, {"priority": "B", "name": "Эквиум Ставрополь", "city": "Ставрополь", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community", "contact": "", "why": ""}, {"priority": "B", "name": "Эквиум Владивосток", "city": "Владивосток", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community", "contact": "", "why": ""}, {"priority": "B", "name": "Эквиум Йошкар-Ола (Поволжье)", "city": "Йошкар-Ола", "audience": "Оборот 80–100 млн ₽", "members": "Эквиум (750+)", "price": "~450 тыс ₽/год", "format": "Equium Talks", "site": "equium.community/volga-region", "contact": "", "why": "Основатель Юрий Усков (iSpring). Edtech-фокус"}, {"priority": "A", "name": "Атланты СПб", "city": "Санкт-Петербург", "audience": "Оборот от 60 млн ₽. 610–700 резидентов", "members": "Атланты (1400+)", "price": "300 тыс вступ. + 41 666/мес", "format": "«Атланты говорят»", "site": "spb.atlanty.ru", "contact": "club@spb.atlanty.ru, +7 (812) 240-13-30", "why": "Крупнейший филиал Атлантов"}, {"priority": "A", "name": "Атланты Ростов", "city": "Ростов-на-Дону", "audience": "Оборот от 60 млн ₽", "members": "Атланты (1400+)", "price": "~750 тыс ₽/год", "format": "«Атланты говорят»", "site": "atlanty.ru", "contact": "atlanty.ru", "why": "Единственный региональный филиал вне МСК/СПб/Дубай"}, {"priority": "A", "name": "Клуб Первых СПб", "city": "Санкт-Петербург", "audience": "Собств. от 500 млн ₽", "members": "Клуб Первых (800–1000)", "price": "590 тыс ₽/год", "format": "120+ мероприятий (центр.)", "site": "clubfirst.ru", "contact": "clubfirst.ru", "why": ""}, {"priority": "B", "name": "Клуб Первых регионы (саммиты)", "city": "Выездные по РФ", "audience": "Собств. от 500 млн ₽", "members": "Клуб Первых (800–1000)", "price": "440 тыс ₽/год", "format": "Региональные саммиты", "site": "clubfirst.ru", "contact": "clubfirst.ru", "why": "Выездные — можно попасть спикером на конкретный саммит"}, {"priority": "A", "name": "Forbes Club СПб", "city": "Санкт-Петербург", "audience": "Оборот от 500 млн ₽", "members": "Forbes Club (~300)", "price": "300 тыс вступ. + 72–95 тыс/мес", "format": "Public Talk", "site": "club.forbes.ru", "contact": "club.forbes.ru", "why": "Медиа-эффект Forbes в СПб"}, {"priority": "C", "name": "Club 500 СПб", "city": "Санкт-Петербург", "audience": "Оборот 100–200 млн ₽", "members": "Club 500 (700+)", "price": "820 тыс ₽/год", "format": "760+ событий/год (центр.)", "site": "club500.com", "contact": "club500.com", "why": "⚠️ Репутационный риск"}, {"priority": "C", "name": "Club 500 Краснодар", "city": "Краснодар", "audience": "Оборот 100–200 млн ₽", "members": "Club 500 (700+)", "price": "820 тыс ₽/год", "format": "760+ событий/год (центр.)", "site": "club500.pro", "contact": "club500.pro", "why": "⚠️ Репутационный риск"}, {"priority": "B", "name": "EVOLUT Казань", "city": "Казань", "audience": "Оборот от 200 млн ₽, реальный сектор", "members": "EVOLUT (200+)", "price": "По запросу", "format": "Встречи с приглашёнными", "site": "evolutclub.com/kazan", "contact": "evolutclub.com", "why": ""}, {"priority": "B", "name": "EVOLUT Екатеринбург", "city": "Екатеринбург", "audience": "Оборот от 200 млн ₽, реальный сектор", "members": "EVOLUT (200+)", "price": "По запросу", "format": "Встречи с приглашёнными", "site": "evolutclub.com/ekaterinburg", "contact": "evolutclub.com", "why": ""}, {"priority": "B", "name": "Reforma СПб", "city": "Санкт-Петербург", "audience": "Собств. от 30 млн ₽", "members": "Reforma (300+)", "price": "По запросу", "format": "Встречи с фаундерами", "site": "reforma.business", "contact": "reforma.business", "why": ""}, {"priority": "B", "name": "REACTOR Краснодар", "city": "Краснодар", "audience": "Собственники", "members": "REACTOR (211)", "price": "По запросу", "format": "REACTOR Study", "site": "reactor-network.ru", "contact": "reactor-network.ru", "why": ""}, {"priority": "B", "name": "REACTOR Волгоград", "city": "Волгоград", "audience": "Собственники", "members": "REACTOR (211)", "price": "По запросу", "format": "REACTOR Study", "site": "reactor-network.ru", "contact": "reactor-network.ru", "why": ""}, {"priority": "B", "name": "REACTOR Ставрополь", "city": "Ставрополь", "audience": "Собственники", "members": "REACTOR (211)", "price": "По запросу", "format": "REACTOR Study", "site": "reactor-network.ru", "contact": "reactor-network.ru", "why": ""}, {"priority": "B", "name": "IMPACTUM Санкт-Петербург", "city": "Санкт-Петербург", "audience": "Предприниматели — ролевые модели", "members": "IMPACTUM (федеральный)", "price": "По запросу", "format": "Чаптер: мероприятия, нетворкинг, приглашённые спикеры", "site": "impactum.community/saint-petersburg", "contact": "impactum.community", "why": "Филиал федерального сообщества. Бренд IMPACTUM в портфолио."}, {"priority": "B", "name": "IMPACTUM Краснодар", "city": "Краснодар", "audience": "Предприниматели — ролевые модели", "members": "IMPACTUM (федеральный)", "price": "По запросу", "format": "Чаптер: мероприятия, нетворкинг, приглашённые спикеры", "site": "impactum.community/krasnodar", "contact": "impactum.community", "why": "Филиал федерального сообщества. Бренд IMPACTUM в портфолио."}, {"priority": "B", "name": "IMPACTUM Крым", "city": "Крым", "audience": "Предприниматели — ролевые модели", "members": "IMPACTUM (федеральный)", "price": "По запросу", "format": "Чаптер: мероприятия, нетворкинг, приглашённые спикеры", "site": "impactum.community/krym", "contact": "impactum.community", "why": "Филиал федерального сообщества. Бренд IMPACTUM в портфолио."}, {"priority": "B", "name": "IMPACTUM Саратов", "city": "Саратов", "audience": "Предприниматели — ролевые модели", "members": "IMPACTUM (федеральный)", "price": "По запросу", "format": "Чаптер: мероприятия, нетворкинг, приглашённые спикеры", "site": "impactum.community/saratov", "contact": "impactum.community", "why": "Филиал федерального сообщества. Бренд IMPACTUM в портфолио."}, {"priority": "B", "name": "IMPACTUM Новосибирск", "city": "Новосибирск", "audience": "Предприниматели — ролевые модели", "members": "IMPACTUM (федеральный)", "price": "По запросу", "format": "Чаптер: мероприятия, нетворкинг, приглашённые спикеры", "site": "impactum.community/novosibirsk", "contact": "impactum.community", "why": "Филиал федерального сообщества. Бренд IMPACTUM в портфолио."}, {"priority": "B", "name": "IMPACTUM Уфа", "city": "Уфа", "audience": "Предприниматели — ролевые модели", "members": "IMPACTUM (федеральный)", "price": "По запросу", "format": "Чаптер: мероприятия, нетворкинг, приглашённые спикеры", "site": "impactum.community/ufa", "contact": "impactum.community", "why": "Филиал федерального сообщества. Бренд IMPACTUM в портфолио."}, {"priority": "B", "name": "IMPACTUM Дагестан", "city": "Дагестан", "audience": "Предприниматели — ролевые модели", "members": "IMPACTUM (федеральный)", "price": "По запросу", "format": "Чаптер: мероприятия, нетворкинг, приглашённые спикеры", "site": "impactum.community/dagestan", "contact": "impactum.community", "why": "Филиал федерального сообщества. Бренд IMPACTUM в портфолио."}, {"priority": "B", "name": "IMPACTUM Самара", "city": "Самара", "audience": "Предприниматели — ролевые модели", "members": "IMPACTUM (федеральный)", "price": "По запросу", "format": "Чаптер: мероприятия, нетворкинг, приглашённые спикеры", "site": "impactum.community/samara", "contact": "impactum.community", "why": "Филиал федерального сообщества. Бренд IMPACTUM в портфолио."}, {"priority": "B", "name": "IMPACTUM Онлайн", "city": "Онлайн", "audience": "Предприниматели — ролевые модели", "members": "IMPACTUM (федеральный)", "price": "По запросу", "format": "Чаптер: мероприятия, нетворкинг, приглашённые спикеры", "site": "impactum.community/online", "contact": "impactum.community", "why": "Филиал федерального сообщества. Бренд IMPACTUM в портфолио."}],
+"target":[{"priority": "B", "name": "Экспертный клуб «ДП»", "city": "Санкт-Петербург", "audience": "Эксперты, управленцы", "members": "Сотни", "price": "54 900 ₽/2 мес (прем.)", "format": "Приглашённые эксперты + медиа", "site": "club.dp.ru", "contact": "club.dp.ru", "why": "Медиа-эффект «Деловой Петербург»"}, {"priority": "C", "name": "BIZPEOPLE FAMILY", "city": "Санкт-Петербург", "audience": "Предприниматели", "members": "200+", "price": "По запросу", "format": "20 событий/мес", "site": "bizpeople.family", "contact": "bizpeople.family", "why": "Высокая частота событий"}, {"priority": "B", "name": "GSOM SPbU Alumni", "city": "Санкт-Петербург", "audience": "Выпускники MBA/EMBA", "members": "4500+", "price": "Через обучение", "format": "Гостевые лекции, Talent Up", "site": "gsom.spbu.ru", "contact": "gsom.spbu.ru", "why": "Качественная бизнес-аудитория"}, {"priority": "C", "name": "PROбизнес CLUB", "city": "Калининград", "audience": "Собственники", "members": "Десятки", "price": "По запросу", "format": "Приглашённые спикеры", "site": "probusinessclub.com", "contact": "probusinessclub.com", "why": "Основной клуб региона"}, {"priority": "C", "name": "Сочинский деловой клуб", "city": "Сочи", "audience": "Предприниматели Сочи", "members": "Десятки", "price": "По запросу", "format": "Встречи", "site": "sochidelclub.ru", "contact": "sochidelclub.ru", "why": "С 2000 года, но масштаб небольшой"}, {"priority": "C", "name": "TERRA Sochi", "city": "Сочи", "audience": "Предприниматели", "members": "Десятки", "price": "Бесплатно", "format": "Обучение + наставничество", "site": "terra-sochi.ru", "contact": "terra-sochi.ru", "why": "Бесплатный вход — легко зайти"}, {"priority": "C", "name": "САММИТ", "city": "Волгоград", "audience": "Предприниматели", "members": "1000+", "price": "Бесплатно", "format": "Открытые встречи", "site": "", "contact": "", "why": "Массовая площадка, без взносов"}, {"priority": "C", "name": "«Код Роста»", "city": "Казань", "audience": "Предприниматели", "members": "Десятки", "price": "По запросу", "format": "2 события/неделю", "site": "codrosta.club", "contact": "codrosta.club", "why": "Партнёры — мэрия Казани, Минпромторг"}, {"priority": "C", "name": "FOUNDER Club", "city": "Уфа", "audience": "Предприниматели", "members": "Десятки", "price": "По запросу", "format": "Встречи", "site": "clubfounder.ru", "contact": "clubfounder.ru", "why": ""}, {"priority": "B", "name": "Бизнес-клуб «Идея» (ТПП Пермь)", "city": "Пермь", "audience": "Предприниматели", "members": "1000+", "price": "Бесплатно", "format": "Через ТПП", "site": "permtpp.ru", "contact": "permtpp.ru", "why": "Массовый охват + гос. поддержка"}, {"priority": "C", "name": "«Клуб 20»", "city": "Воронеж", "audience": "Чистая прибыль от 500 тыс/мес", "members": "Десятки", "price": "По запросу", "format": "Закрытые, приглашённые тренеры", "site": "club20.biz", "contact": "club20.biz", "why": "Элитный формат"}, {"priority": "C", "name": "«Человек Дела»", "city": "НН, Воронеж, Киров, Москва", "audience": "Предприниматели", "members": "Сотни", "price": "По запросу", "format": "Встречи со спикерами", "site": "chelovekdela.com", "contact": "chelovekdela.com", "why": "Сеть в 4 городах"}, {"priority": "C", "name": "Новгородский Бизнес-Клуб", "city": "Великий Новгород", "audience": "Собственники, менеджеры", "members": "Десятки", "price": "По запросу", "format": "Встречи", "site": "novbizclub.orgs.biz", "contact": "+7 8162 689-877", "why": ""}, {"priority": "C", "name": "«Окружение»", "city": "Челябинск", "audience": "Предприниматели", "members": "Десятки", "price": "По запросу", "format": "Закрытые встречи", "site": "okruzhenie.club", "contact": "okruzhenie.club", "why": ""}, {"priority": "C", "name": "#Впотоке", "city": "Челябинск", "audience": "Предприниматели", "members": "Десятки", "price": "По запросу", "format": "«Бизнес-обед с экспертом»", "site": "", "contact": "", "why": "Формат обеда — камерный, хорош для конверсии"}, {"priority": "C", "name": "Тюменский Деловой Клуб", "city": "Тюмень", "audience": "Собственники", "members": "Десятки", "price": "По запросу", "format": "Встречи", "site": "tdkport.ru", "contact": "tdkport.ru", "why": ""}, {"priority": "C", "name": "Первый Деловой Клуб", "city": "Красноярск", "audience": "Оборот от 50–100 млн ₽", "members": "Десятки", "price": "По запросу", "format": "Закрытые встречи", "site": "", "contact": "", "why": ""}, {"priority": "C", "name": "Бизнес-клуб 38", "city": "Иркутск", "audience": "Предприниматели Восточной Сибири", "members": "Десятки", "price": "По запросу", "format": "Встречи", "site": "businessclub38.ru", "contact": "businessclub38.ru", "why": "Крупнейший в Восточной Сибири"}, {"priority": "C", "name": "Клуб БАБР", "city": "Иркутск", "audience": "Предприниматели", "members": "Десятки", "price": "По запросу", "format": "Встречи", "site": "babrclub.ru", "contact": "babrclub.ru", "why": ""}, {"priority": "C", "name": "C-Level", "city": "Томск", "audience": "Топ-менеджеры", "members": "Десятки", "price": "По запросу", "format": "Закрытые встречи", "site": "clvl.ru", "contact": "clvl.ru", "why": "Элитный формат"}, {"priority": "C", "name": "Momentum", "city": "Омск", "audience": "Предприниматели", "members": "Десятки", "price": "По запросу", "format": "Встречи", "site": "momentumclub.ru", "contact": "momentumclub.ru", "why": "С 2018 года"}, {"priority": "C", "name": "Бизнес-сообщество Кузбасса", "city": "Кемерово", "audience": "Предприниматели", "members": "Десятки", "price": "По запросу", "format": "Встречи", "site": "bckuzbass.com", "contact": "bckuzbass.com", "why": ""}, {"priority": "B", "name": "UNION", "city": "Владивосток, Хабаровск, Камчатка", "audience": "Предприниматели", "members": "До 100", "price": "По запросу", "format": "Закрытые встречи", "site": "union100.ru", "contact": "union100.ru", "why": "Также Москва, Дубай"}, {"priority": "C", "name": "Закрытый клуб «Рост» ДВ", "city": "Владивосток", "audience": "Предприниматели", "members": "Десятки", "price": "По запросу", "format": "2 встречи/мес", "site": "clubrost.ru", "contact": "clubrost.ru", "why": ""}, {"priority": "C", "name": "Камчатский деловой клуб", "city": "Петропавловск-Камчатский", "audience": "Все CEO региона", "members": "Десятки", "price": "По запросу", "format": "Встречи + диалог с губернатором", "site": "kambusiness.ru", "contact": "kambusiness.ru", "why": "GR-компонент"}, {"priority": "C", "name": "АЙКИ КЛУБ", "city": "Якутск", "audience": "Предприниматели Якутии", "members": "Десятки", "price": "По запросу", "format": "Встречи", "site": "", "contact": "Лермонтова 65", "why": ""}, {"priority": "A", "name": "Атланты CMO Club", "city": "Москва", "audience": "CMO крупных компаний", "members": "Десятки", "price": "По запросу", "format": "Закрытые встречи. Только опыт/кейсы, НЕ pitch", "site": "atlantycmoclub.ru", "contact": "atlantycmoclub.ru", "why": "★★★★★ Прямая ЦА. Но формат «без продаж» — нужен чистый контент"}, {"priority": "B", "name": "The Edgers CMO Club", "city": "Москва", "audience": "CMO топ-компаний", "members": "Десятки", "price": "По запросу", "format": "Закрытые встречи", "site": "theedgers.ru/cmoclub", "contact": "theedgers.ru", "why": "При поддержке Сетки"}, {"priority": "B", "name": "Клуб Коммерческих Директоров", "city": "Москва + онлайн", "audience": "Коммерческие директора", "members": "20 000+", "price": "По запросу", "format": "Ежемесячные конференции", "site": "komdir.club", "contact": "komdir.club", "why": "Огромная база. Директора = ЛПР по маркетинговым бюджетам"}],
+};
+
+
+
+
+const regionalContacts=[];
+
+// ========== CLUBS RENDER ==========
+var currentClubCat='federal';
+var clubPriorityFilter='all';
+var clubSelectedKeys=new Set();
+
+function switchClubCat(btn){
+document.querySelectorAll('#club-cat-toolbar .filter-btn').forEach(function(b){b.classList.remove('active')});
+btn.classList.add('active');
+currentClubCat=btn.dataset.cat;
+var th=document.getElementById('club-members-th');
+if(th)th.textContent=currentClubCat==='branches'?'Головной клуб':'Участников';
+filterClubs();
+}
+function toggleClubPriority(btn){
+document.querySelectorAll('#club-filter-toolbar .filter-btn').forEach(function(b){b.classList.remove('active')});
+btn.classList.add('active');
+clubPriorityFilter=btn.dataset.f;
+filterClubs();
+}
+function renderClubsTable(list,catKey){
+var tb=document.getElementById('club-tbody');
+if(catKey==='contacts'){
+// Special render for regional contacts
+document.getElementById('club-table').querySelector('thead').innerHTML='<tr><th style="width:30px"></th><th>Город</th><th>Сообщество</th><th>Контактное лицо</th><th>Контакты</th><th>Аудитория</th><th>Комментарий</th></tr>';
+tb.innerHTML=list.map(function(c,i){
+var key='contacts_'+i;
+var checked=clubSelectedKeys.has(key)?'checked':'';
+var selClass=clubSelectedKeys.has(key)?'selected':'';
+var siteUrl=c.site&&c.site.indexOf('.')>-1?c.site:'';
+if(siteUrl&&siteUrl.indexOf('http')!==0)siteUrl='https://'+siteUrl;
+var tgUrl=c.telegram&&c.telegram.indexOf('@')===0?'https://t.me/'+c.telegram.slice(1):'';
+return '<tr class="'+selClass+'">'+
+'<td><input type="checkbox" '+checked+' onchange="toggleClubSelect(\''+key+'\')" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"></td>'+
+'<td><strong>'+c.city+'</strong></td>'+
+'<td>'+c.name+'</td>'+
+'<td>'+c.leader+'</td>'+
+'<td style="font-size:11px">'+(tgUrl?'<a href="'+tgUrl+'" target="_blank" rel="noopener">'+c.telegram+'</a>':(c.telegram||''))+(c.email?'<br><a href="mailto:'+c.email+'">'+c.email+'</a>':'')+'</td>'+
+'<td>'+c.audience+'</td>'+
+
+'<td style="font-size:11px;color:var(--text2)">'+c.comment+'</td>'+
+'</tr>';}).join('');
+return;
+}
+// Restore normal headers
+document.getElementById('club-table').querySelector('thead').innerHTML='<tr><th style="width:30px"></th><th>Клуб</th><th>География</th><th>Аудитория / Порог</th><th id="club-members-th">'+(catKey==='branches'?'Головной клуб':'Участников')+'</th><th>Стоимость</th><th>Формат спикерства</th><th>Почему подходит</th></tr>';
+var tb=document.getElementById('club-tbody');
+tb.innerHTML=list.map(function(c,i){
+var origIdx=clubsData[catKey].indexOf(c);
+var key=catKey+'_'+origIdx;
+var siteUrl=c.site&&c.site.indexOf('.')>-1?('https://'+c.site.replace(/^https?:\/\//,'')):'';
+var hasUrl=!!siteUrl;
+var checked=clubSelectedKeys.has(key)?'checked':'';
+var selClass=clubSelectedKeys.has(key)?'selected':'';
+return '<tr class="'+selClass+'">'+
+'<td><input type="checkbox" '+checked+' onchange="toggleClubSelect(\''+key+'\')" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"></td>'+
+'<td><strong>'+(hasUrl?'<a href="'+siteUrl+'" target="_blank" rel="noopener">'+c.name+'</a>':c.name)+'</strong></td>'+
+'<td>'+c.city+'</td>'+
+'<td style="max-width:200px">'+c.audience+'</td>'+
+'<td>'+c.members+'</td>'+
+'<td>'+c.price+'</td>'+
+'<td style="max-width:200px">'+c.format+'</td>'+
+'<td style="max-width:250px;font-size:11px;color:var(--text2)">'+c.why+'</td>'+
+'</tr>';
+}).join('');
+}
+function toggleClubSelect(key){
+if(clubSelectedKeys.has(key))clubSelectedKeys.delete(key);else clubSelectedKeys.add(key);
+updateClubSummary();
+filterClubs();
+}
+function updateClubSummary(){
+var sum=document.getElementById('club-summary');
+var cnt=document.getElementById('club-count');
+var nms=document.getElementById('club-names');
+if(clubSelectedKeys.size===0){sum.style.display='none';return;}
+sum.style.display='block';
+cnt.textContent=clubSelectedKeys.size;
+var names=[];
+clubSelectedKeys.forEach(function(key){
+var parts=key.split('_');
+var c=clubsData[parts[0]][parseInt(parts[1])];
+if(c)names.push(c.name);
+});
+nms.textContent=names.join(', ');
+}
+function filterClubs(){
+var q=document.getElementById('club-search').value.toLowerCase();
+if(clubPriorityFilter==='selected'){
+var allSelected=[];
+clubSelectedKeys.forEach(function(key){
+var parts=key.split('_');
+var club=clubsData[parts[0]][parseInt(parts[1])];
+if(club&&(!q||(club.name+club.city+club.why+club.audience).toLowerCase().indexOf(q)>-1))
+allSelected.push({club:club,cat:parts[0],origIdx:parseInt(parts[1])});
+});
+var tb=document.getElementById('club-tbody');
+tb.innerHTML=allSelected.map(function(item){
+var c=item.club;var key=item.cat+'_'+item.origIdx;
+var siteUrl=c.site&&c.site.indexOf('.')>-1?('https://'+c.site.replace(/^https?:\/\//,'')):'';
+var hasUrl=!!siteUrl;
+return '<tr class="selected">'+
+'<td><input type="checkbox" checked onchange="toggleClubSelect(\''+key+'\')" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"></td>'+
+'<td><strong>'+(hasUrl?'<a href="'+siteUrl+'" target="_blank" rel="noopener">'+c.name+'</a>':c.name)+'</strong></td>'+
+'<td>'+c.city+'</td>'+
+'<td style="max-width:200px">'+c.audience+'</td>'+
+'<td>'+c.members+'</td>'+
+'<td>'+c.price+'</td>'+
+'<td style="max-width:200px">'+c.format+'</td>'+
+'<td style="max-width:250px;font-size:11px;color:var(--text2)">'+c.why+'</td>'+
+'</tr>';
+}).join('');
+return;
+}
+var dataSource=currentClubCat==='contacts'?regionalContacts:clubsData[currentClubCat];
+var list=dataSource.filter(function(c){
+if(!q)return true;
+return (c.name+c.city+c.why+c.audience+c.format).toLowerCase().indexOf(q)>-1;
+});
+renderClubsTable(list,currentClubCat);
+}
+filterClubs();
+
+// ========== PODCASTS DATA ==========
+const podData={"podcasts": [{"n": "1", "name": "Подкаст Алексея Голубева", "host": "Алексей Голубев", "topic": "Бизнес, деньги, личный бренд, саморазвитие", "subs": "358K подписчиков", "price": "500 000 ₽", "city": "Москва", "bonus": "Анонс в соцсетях ведущего, студия 3 камеры", "contact": "youtube.com/@golubev_alexey", "url": "https://youtube.com/@golubev_alexey"}, {"n": "2", "name": "Подкаст Соколовского", "host": "Александр Соколовский", "topic": "Бизнес, мышление, будущее, технологии", "subs": "1,5M+ подписчиков", "price": "4 000 000 ₽", "city": "Москва", "bonus": "Топ-1. История LPgenerator → Vitamin.tools — идеальный гость", "contact": "099raz@gmail.com · @pr_sokolovskiy", "url": "https://www.youtube.com/@AlexanderSokolovskiy"}, {"n": "3", "name": "Ольга Благовещенская", "host": "Ольга Благовещенская", "topic": "Бизнес, инвестиции, недвижимость", "subs": "74,5K подписчиков", "price": "500 000 ₽", "city": "Москва", "bonus": "Соседство с Агаларовым, Полонским", "contact": "YouTube: Ольга Благовещенская", "url": "https://www.youtube.com/results?search_query=Ольга+Благовещенская"}, {"n": "4", "name": "Маргулан Сейсембай", "host": "Маргулан Сейсембай", "topic": "Предпринимательство, инвестиции, философия бизнеса", "subs": "Предприниматели, инвесторы", "price": "Запросить", "city": "—", "bonus": "Серийный предприниматель, огромная аудитория. Был гостем у «Основателей»", "contact": "https://www.youtube.com/@margulan__seissembai", "url": "https://www.youtube.com/@margulan__seissembai"}, {"n": "5", "name": "Роман Тарасенко", "host": "Роман Тарасенко", "topic": "Маркетинг, бизнес, книги", "subs": "Маркетологи, предприниматели", "price": "Запросить", "city": "—", "bonus": "Автор книг по маркетингу. Пересечение с Vitamin.tools", "contact": "https://www.youtube.com/@roman.tarasenko", "url": "https://www.youtube.com/@roman.tarasenko"}, {"n": "6", "name": "Оскар Хартманн", "host": "Оскар Хартманн", "topic": "Подкасты + мотивация, инвестиции", "subs": "Предприниматели, инвесторы", "price": "Запросить", "city": "—", "bonus": "50+ часов подкастов. Основатель KupiVIP, CarPrice", "contact": "youtube.com/@OskarHartmann · t.me/Oskar_Hartmann", "url": "https://youtube.com/@OskarHartmann"}, {"n": "7", "name": "Глеб Соломин", "host": "Глеб Соломин", "topic": "Бизнес, предпринимательство, кейсы", "subs": "1,1M", "price": "Запросить", "city": "Москва", "bonus": "Узкие практичные вопросы. Номинант Forbes 30 до 30", "contact": "youtube.com/@gleb_solomin_podcast · TG: @gleb_solomin · glebsolominadv@inbox.ru", "url": "https://t.me/gleb_solomin"}, {"n": "8", "name": "Подкаст Муратаева", "host": "Муратаев", "topic": "Бизнес-практика, предпринимательство", "subs": "~50K", "price": "Запросить", "city": "—", "bonus": "Хардкорный формат, реальные предприниматели", "contact": "https://www.youtube.com/@MurataevPodcast", "url": "https://www.youtube.com/@MurataevPodcast"}, {"n": "9", "name": "Smart Business", "host": "Олег Карнаух", "topic": "Советы по онлайн-бизнесу, кейсы", "subs": "Начинающие предприниматели", "price": "Запросить", "city": "—", "bonus": "Пересекается с аудиторией книги «Всё ты можешь!»", "contact": "YouTube: Smart Business", "url": "https://www.youtube.com/results?search_query=Smart+Business"}, {"n": "10", "name": "Роман Жилин (YouTube)", "host": "Роман Жилин", "topic": "Личный бренд, интервью с бизнесменами и блогерами", "subs": "—", "price": "Запросить", "city": "Москва", "bonus": "300+ выступлений, продюсер проектов Зубаревой, автор книги", "contact": "youtube.com/@romanzhilin · zhylinr@gmail.com · zhilinroman.ru"}, {"n": "11", "name": "Максим Спиридонов", "host": "Максим Спиридонов", "topic": "Интервью с бизнесменами Рунета", "subs": "Предприниматели, EdTech, IT", "price": "Запросить", "city": "—", "bonus": "«Дудь в бизнесе». 10 лет «Рунетологии». Нетология-групп", "contact": "YouTube: Максим Спиридонов", "url": "https://www.youtube.com/results?search_query=Максим+Спиридонов"}, {"n": "12", "name": "Кошкин PRO", "host": "Евгений Кошкин", "topic": "Бизнес в интернете, продвижение", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Подкаст про бизнес в интернете", "contact": "YouTube: Кошкин PRO", "url": "https://www.youtube.com/results?search_query=Кошкин+PRO"}, {"n": "13", "name": "Разборщик", "host": "—", "topic": "Бизнес-разборы, кейсы", "subs": "1,2M", "price": "Запросить", "city": "—", "bonus": "Топ-1 бизнес-каналов на whatstat.ru", "contact": "YouTube: Разборщик", "url": "https://www.youtube.com/results?search_query=Разборщик"}, {"n": "14", "name": "Максим Горшенин", "host": "Максим Горшенин", "topic": "Бизнес, инвестиции", "subs": "95K", "price": "Запросить", "city": "—", "bonus": "Средний канал с бизнес-тематикой", "contact": "YouTube: Максим Горшенин", "url": "https://www.youtube.com/results?search_query=Максим+Горшенин"}, {"n": "15", "name": "АЛКАНОВ", "host": "Алканов", "topic": "Бизнес, маркетплейсы", "subs": "139K", "price": "Запросить", "city": "—", "bonus": "—", "contact": "YouTube: АЛКАНОВ", "url": "https://www.youtube.com/results?search_query=АЛКАНОВ"}, {"n": "16", "name": "«PRO СМЫСЛЫ» (Михаил Федоренко)", "host": "Михаил Федоренко", "topic": "Смыслы, лидерство, стратегия жизни, успех", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Гандапас был гостем (2025). Глубокий формат", "contact": "YouTube: Михаил Федоренко", "url": "https://www.youtube.com/results?search_query=Михаил+Федоренко"}, {"n": "17", "name": "Спасибо за покупку", "host": "YouDo + CarPrice", "topic": "Лайфстайл-бизнес, предприниматели", "subs": "—", "price": "Запросить", "city": "Москва", "bonus": "Спонсор — Альфа-Банк, неформально", "contact": "YouTube"}, {"n": "18", "name": "«Привет! Чем занимаешься?» (ПЧЗ)", "host": "—", "topic": "Бизнес-интервью, школы, EdTech", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Интервью с предпринимателями разных ниш", "contact": "RuTube / YouTube"}, {"n": "19", "name": "Подкаст AdIndex", "host": "Редакция AdIndex", "topic": "Интервью с рекламной отраслью", "subs": "Маркетологи, рекламщики", "price": "Запросить", "city": "—", "bonus": "Прямая ЦА Vitamin.tools", "contact": "https://adindex.ru", "url": "https://adindex.ru"}, {"n": "20", "name": "Деньги пришли", "host": "—", "topic": "Финансы, инвестиции для предпринимателей", "subs": "Предприниматели, инвесторы", "price": "Запросить", "city": "—", "bonus": "Попадает в ЦА — предприниматели с деньгами", "contact": "https://prishli.me", "url": "https://prishli.me"}, {"n": "21", "name": "Причиняем пользу", "host": "Дмитрий Калаев (ФРИИ)", "topic": "Стартапы, технологическое предпринимательство", "subs": "Стартаперы, IT-предприниматели, инвесторы", "price": "Запросить", "city": "—", "bonus": "ФРИИ — главный акселератор РФ. Vitamin.tools — IT-компания, формат подходит", "contact": "https://iidfpodcast.mave.digital/", "url": "https://iidfpodcast.mave.digital/"}, {"n": "22", "name": "«Предприниматель — это профессия»", "host": "Светлана Петрова", "topic": "Управление, масштабирование, финансы, стратегия", "subs": "новый", "price": "60 000 ₽ (станд) / 95 000 ₽ (прем)", "city": "СПб", "bonus": "Станд: видео+аудио+5 рилсов. Прем: +10 рилсов, ссылки, статус эксперта", "contact": "rosspred.ru/podkast · +7(981)892-31-57"}, {"n": "23", "name": "NextMedia Podcast", "host": "Эльнара Петрова", "topic": "Маркетинг, бизнес, кейсы", "subs": "—", "price": "Бесплатно / интеграция 40-70K", "city": "—", "bonus": "180+ выпусков с 2013 года, Т-Банк, Mindbox", "contact": "podcast@nextmedia.pro · TG: @elnarapetrova"}, {"n": "24", "name": "Plan Действий / План Развития", "host": "Валерия Розова (TYPICAL)", "topic": "Менеджмент, продукт, стратегия", "subs": "—", "price": "Спецпроекты", "city": "Москва", "bonus": "Гости: CEO, менеджеры компаний", "contact": "planspodcasts.com · TG Аня Гелясина"}, {"n": "25", "name": "«Без масок» (Гаянэ Асадова)", "host": "Гаянэ Асадова", "topic": "Бизнес, лидерство, истории", "subs": "—", "price": "Под ключ (запросить)", "city": "Москва", "bonus": "Студия + монтаж + публикация на YouTube/VK/RuTube/Дзен", "contact": "asadova.com/podcast · TG: @asadova_gaiane"}, {"n": "26", "name": "Косатка Маркетинг", "host": "Станислав Покрышкин", "topic": "Маркетинг, бизнес-интервью", "subs": "—", "price": "Нативная реклама (запросить)", "city": "Москва", "bonus": "Открыто приглашает платных гостей", "contact": "kosatka-marketing.ru"}, {"n": "27", "name": "DV Бизнес", "host": "DV Business", "topic": "Стартапы, предпринимательство", "subs": "—", "price": "Запросить", "city": "Москва", "bonus": "Студия, серийные предприниматели", "contact": "companies.rbc.ru"}, {"n": "28", "name": "Dnative", "host": "Алексей Ткачук", "topic": "Digital, SMM, тренды", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Огромная аудитория SMM", "contact": "mave.digital"}, {"n": "29", "name": "Разговоры о рекламе", "host": "AdIndex", "topic": "Рекламный рынок, технологии, медиа", "subs": "—", "price": "Запросить / спонсорство", "city": "Москва", "bonus": "Индустриальный подкаст", "contact": "adindex.ru"}, {"n": "30", "name": "Потом доделаю", "host": "WEEK", "topic": "Управление проектами, задачи", "subs": "Предприниматели, менеджеры", "price": "Запросить", "city": "—", "bonus": "Операционка, дедлайны, команда — практические темы", "contact": "week-app.com"}, {"n": "31", "name": "Подкаст KRISANOV", "host": "Евгений Крисанов", "topic": "Бизнес, саморазвитие, личный бренд, мышление, психология", "subs": "растущий", "price": "Запросить", "city": "—", "bonus": "Предприниматель, продюсер. Открыто приглашает гостей", "contact": "krisanov_pr@bk.ru"}, {"n": "32", "name": "«Открытый бизнес»", "host": "—", "topic": "Предпринимательство, истории бизнеса", "subs": "растущий", "price": "Запросить", "city": "—", "bonus": "Есть отдельное видео-приглашение для гостей + форма заявки", "contact": "olinecontact.ru/lp/zayavka-na-intervyu"}, {"n": "33", "name": "Франкель про бизнес", "host": "Наталия Франкель", "topic": "Предпринимательство, кризисы, масштабирование, управление", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Серийные предприниматели, 100+ филиалов. Дмитрий Кибкало, DreamWhite, Комус", "contact": "TG: t.me/ffrankel · natafrankel.ru"}, {"n": "34", "name": "«Зачем я это делаю?»", "host": "Нистратов", "topic": "Мотивация CEO, решения, личный бренд, бизнес-стратегия", "subs": "—", "price": "Запросить", "city": "—", "bonus": "60+ выпусков. Кира Долгова (Laser Love), предприниматели с миллиардной выручкой", "contact": "mave: nistratov.mave.digital"}, {"n": "35", "name": "Бизнес-сёрфинг", "host": "ГБУ «Малый бизнес Москвы»", "topic": "Бизнес-культура, стиль жизни предпринимателей", "subs": "—", "price": "Запросить (гос. проект)", "city": "Москва", "bonus": "Подкаст при поддержке мэрии Москвы. Гостевой формат", "contact": "mbm.mave.digital"}, {"n": "36", "name": "Делай бизнес", "host": "—", "topic": "Начинающие предприниматели, идеи, деньги на старт", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Для начинающих — Денис может зайти как ментор", "contact": "doingbusiness.mave.digital"}, {"n": "37", "name": "Бизнес по-Сташевски", "host": "Артемий Сташевский", "topic": "Предпринимательство, мотивация", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Авторский подкаст предпринимателя", "contact": "temastashevsky.mave.digital"}, {"n": "38", "name": "Бизнес — это про деньги", "host": "Айрат Измайлов (UDS)", "topic": "Маркетинг, предпринимательство, лояльность", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Директор по стратегическому развитию UDS", "contact": "uds.mave.digital · TG: t.me/uds_channel"}, {"n": "39", "name": "«Был такой кейс»", "host": "Студия «Заварили»", "topic": "Ответы предпринимателей на вопросы слушателей", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Трое опытных предпринимателей разбирают кейсы", "contact": "podcast.ru/1573418238"}, {"n": "40", "name": "«Бизнес — это я»", "host": "Яндекс Бизнес", "topic": "Малый бизнес, реальные истории предпринимателей из регионов", "subs": "Предприниматели МСБ", "price": "Спецпроект (запросить)", "city": "—", "bonus": "3 сезона. Корпоративный подкаст Яндекса — PR-ценность", "contact": "yandexbusiness.mave.digital"}, {"n": "41", "name": "ObretuRu", "host": "—", "topic": "Образование, работа, бизнес в России", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Короткие выпуски, 137+ эпизодов с 2018 года", "contact": "obretu.mave.digital · vk.com/obretu"}, {"n": "42", "name": "ProMentoring", "host": "Иван Рындин", "topic": "Менторство, трекинг, стратегия, архитектура бизнеса, выход из операционки", "subs": "Собственники, управленцы", "price": "Запросить", "city": "—", "bonus": "⚠️ Денис уже был гостем! ★★★★★ ИДЕАЛЬНО для Дениса! 20+ выпусков 2025. Клуб менторов. Тема = менторство для предпринимателей", "contact": "promentoring.mave.digital · mentorclub.ru", "url": "https://promentoring.mave.digital/"}, {"n": "43", "name": "«Бизнес говорит» (Business FM)", "host": "Илья Копелевич", "topic": "CEO, предприниматели, стратегия, кризисы, масштабирование", "subs": "—", "price": "Спонсорство (запросить)", "city": "Москва", "bonus": "Федеральное деловое радио. Гости: CEO DNS, Positive Technologies, Раппопорт", "contact": "BFM.ru"}, {"n": "44", "name": "Боратиони", "host": "Лаша Боратиони", "topic": "Онлайн-бизнес, масштабирование, продюсирование, EdTech", "subs": "—", "price": "Запросить (есть форма!)", "city": "—", "bonus": "213 видео! Есть форма заявки на эфир. Гости — предприниматели с оборотом 500M+", "contact": "x100consult.ru/zayavka_na_efir"}, {"n": "45", "name": "«Активный Предприниматель»", "host": "—", "topic": "Цифровое медиа для предпринимателей, интервью с CEO", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Подкасты на Яндекс Музыке + RuTube. Формат «Умное радио»", "contact": "TG: t.me/BizActive · music.yandex.ru/album/28535662"}, {"n": "46", "name": "«Будет сделано!» (Никита Маклахов)", "host": "Никита Маклахов", "topic": "Продуктивность, делегирование, баланс, предпринимательство", "subs": "Предприниматели, управленцы", "price": "Запросить", "city": "—", "bonus": "184 выпуска! Дашкиев, Гандапас, Герасичев были гостями. Тема = мышление CEO", "contact": "willbedone.ru"}, {"n": "47", "name": "Работаем дальше", "host": "Потапенко, Зюзяев", "topic": "Реалии российского бизнеса", "subs": "Широкая предпринимательская", "price": "Запросить", "city": "—", "bonus": "Большой охват, резонанс", "contact": "—"}, {"n": "48", "name": "В курсе рубля", "host": "Т—Ж (Настя Якорева, Игорь Жулькин)", "topic": "Что происходит в российской экономике", "subs": "Инвесторы, экономисты, предприниматели", "price": "Запросить", "city": "—", "bonus": "Авторитетная площадка Т—Ж", "contact": "Apple Podcasts"}, {"n": "49", "name": "В один клик", "host": "Фёдор Вирин, Аяна Бабасанова (студия «Либо/либо»)", "topic": "Онлайн-коммерция в России", "subs": "Руководители e-com, собственники", "price": "Запросить", "city": "—", "bonus": "Самокат, Озон, Утконос — гости подкаста", "contact": "Apple Podcasts"}, {"n": "50", "name": "Bang Bang Education", "host": "Алишер Хасанов", "topic": "Жёсткие интервью с владельцами студий", "subs": "Владельцы агентств, дизайн-студий", "price": "Запросить", "city": "—", "bonus": "Диджитал-среда, бизнес-процессы", "contact": "Apple Podcasts"}, {"n": "51", "name": "Спасибо, я в порядке", "host": "—", "topic": "Предприниматели про выгорание, депрессию, панические атаки", "subs": "Предприниматели с ментальными трудностями", "price": "Запросить", "city": "—", "bonus": "Книга «не выгореть» — прямое пересечение с темой", "contact": "Apple Podcasts"}, {"n": "52", "name": "Маркетинг и реальность", "host": "Александр Дяченко", "topic": "Брендинг, PR, digital", "subs": "—", "price": "Бесплатно / интеграция 40-70K", "city": "—", "bonus": "Топ-10 Apple Podcasts маркетинг", "contact": "pr@marketing.audio · TG: @fenixeales"}, {"n": "53", "name": "Богема и Маркетинг", "host": "Саша Рудко", "topic": "Маркетинг, креатив, закулисье", "subs": "—", "price": "Бесплатно", "city": "—", "bonus": "SETTERS, Ильяхов, Митрошина — уровень гостей", "contact": "TG: @bogema_prod"}, {"n": "54", "name": "Совет директоров", "host": "Войтов, Волков, Волкова", "topic": "Разбор бизнес-проблем с владельцами", "subs": "—", "price": "Бесплатно", "city": "—", "bonus": "Живой формат: нужна конкретная бизнес-проблема", "contact": "TG: @zavareelee"}, {"n": "55", "name": "Заварили бизнес", "host": "Саша Волкова", "topic": "Реалити о кофейне и бизнесе", "subs": "Начинающие и растущие предприниматели", "price": "Бесплатно", "city": "Москва", "bonus": "Нарративный формат, только если сменится на гостевой", "contact": "TG: @zavareelee", "url": "https://businessclass.rbc.ru/"}, {"n": "56", "name": "Несладкий бизнес", "host": "Red Barn + Hussle", "topic": "Бизнес, управление, финансы РФ", "subs": "—", "price": "Запросить", "city": "Москва", "bonus": "Формат интервью с предпринимателями", "contact": "Через Hussle"}, {"n": "57", "name": "Полусладкий подкаст", "host": "Ткачук + Прокопенко", "topic": "Маркетинг, блогеры, репутация", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Неформальный формат", "contact": "TG авторов"}, {"n": "58", "name": "Make Sense Podcast", "host": "—", "topic": "Продуктовый менеджмент, стартапы", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Product-market fit, стратегия", "contact": "Через площадку"}, {"n": "59", "name": "Психология маркетинга", "host": "Дмитрий Кранц", "topic": "Маркетинг, поведенческая психология", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Нишевый, но экспертный", "contact": "Через площадку"}, {"n": "60", "name": "Экономика на слух", "host": "РЭШ", "topic": "Экономика, финансы, инвестиции", "subs": "Инвесторы, экономисты", "price": "Спонсорство", "city": "Москва", "bonus": "Авторитетная площадка для экспертного веса", "contact": "РЭШ"}, {"n": "61", "name": "«Бренды будущего»", "host": "—", "topic": "Бренды, бизнес-истории", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Формат аудиостатей, не нужно приезжать в студию", "contact": "Яндекс.Музыка / Apple"}, {"n": "62", "name": "«Звучит как план»", "host": "—", "topic": "Бизнес, стартапы, кейсы", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Новый подкаст, растущая аудитория", "contact": "Подкаст-платформы"}, {"n": "63", "name": "Раскрыватор", "host": "Валера", "topic": "Бизнес в России, налоги, честный бизнес, предпринимательство", "subs": "растущий", "price": "Запросить (активно ищет гостей)", "city": "Москва", "bonus": "В каждом видео призыв «хотите стать гостем». Актуальный, выпуски 2025", "contact": "TG: @valeratgrm"}, {"n": "64", "name": "ИПэшники", "host": "Павел Пресняков", "topic": "E-commerce, интернет-магазины, предпринимательство", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Владелец 5 интернет-магазинов приглашает предпринимателей", "contact": "Rephonic / подкаст-платформы"}, {"n": "65", "name": "«Не на готовенькое»", "host": "—", "topic": "Франшизы, смарт-отели, бизнес-модели", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Подкаст про франшизы — Денис может зайти с темой масштабирования через группы", "contact": "RuTube"}, {"n": "66", "name": "Подкаст Явно", "host": "Андрей Лукьянов", "topic": "Предпринимательство, психология, трансформация", "subs": "1,5K", "price": "Запросить", "city": "—", "bonus": "Интервью с предпринимателями и психологами", "contact": "RuTube: Андрей Лукьянов"}, {"n": "67", "name": "«Оля Says»", "host": "Оля", "topic": "Бизнес-мышление, саморазвитие, трансформация", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Дашкиев был гостем (2024)", "contact": "TG: @olya_says"}, {"n": "68", "name": "«Будь Брендом» (Михаил Кокин)", "host": "Михаил Кокин", "topic": "Личный бренд, предприниматели, ценности как ресурс", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Гандапас был гостем. Тема = личный бренд в бизнесе — релевантно Денису", "contact": "Подкаст-платформы"}, {"n": "69", "name": "«Хвост пистолетом» (Сергей Калинин)", "host": "Сергей Калинин", "topic": "Мужской подкаст: лидерство, решения, ценности, семья", "subs": "—", "price": "Запросить", "city": "—", "bonus": "Гандапас был одним из первых гостей. Провокационные вопросы", "contact": "Подкаст-платформы"}, {"n": "70", "name": "«Дело во мне» (Like Центр)", "host": "Катя Прошева", "topic": "Психология предпринимательства, мышление, страхи, решения", "subs": "—", "price": "Запросить", "city": "Москва", "bonus": "Жилин был гостем. Студия «Богема». 2 сезона. Гости — предприниматели и эксперты Like Центра", "contact": "Apple Podcasts · TG: @bogema_prod"}], "pr": [{"n": "1", "company": "YouStory Global (Городничева)", "type": "Агентство YouTube-продвижения", "what": "База подкастов с ценами и условиями. Продвижение на YouTube", "useful": "Готовая база платных слотов. PDF уже есть", "contact": "sale@youstory.global · TG: @gorodnicheva_ekaterina · +7(499)348-99-22", "site": "youstory.global"}, {"n": "2", "company": "PR-агентство Agenda", "type": "PR-агентство (20+ лет)", "what": "Прямо пишут: «договариваемся об участии в подкастах». Нативные интеграции в TG", "useful": "Могут забукировать Дениса в подкасты под ключ", "contact": "Через сайт", "site": "agenda.ru"}, {"n": "3", "company": "«Спикеры России» (платформа)", "type": "Платформа спикеров", "what": "Связь спикеров с организаторами. Съёмка подкастов и reels", "useful": "Денис может зарегистрироваться как спикер. Организаторы найдут его сами", "contact": "Через сайт", "site": "спикерыроссии.рф"}, {"n": "4", "company": "TopSpeaker.ru", "type": "Агентство спикеров (с 2011)", "what": "Крупнейшее в РФ и СНГ. Букинг на конференции + подкасты", "useful": "Букинг Дениса на мероприятия всех форматов", "contact": "Через сайт", "site": "topspeaker.ru"}, {"n": "5", "company": "BookSpeaker.agency", "type": "Агентство спикеров", "what": "Подбор спикеров за 24 часа. «Умная» база", "useful": "Быстрый букинг", "contact": "Через сайт", "site": "bookspeaker.agency"}, {"n": "6", "company": "Бюро «Глагол»", "type": "Подготовка спикеров", "what": "Готовят к TEDx, ProductFest, конференциям, подкастам, съёмкам", "useful": "Подготовка Дениса к выступлениям. Работали с Авито, Циан, Яндекс, Норникель", "contact": "Через сайт", "site": "glagol.me/speakers"}, {"n": "7", "company": "MySpeaker.ru", "type": "Букинг спикеров", "what": "Подбор мотивационных и бизнес-спикеров на мероприятия", "useful": "Букинг Дениса как спикера", "contact": "Через сайт", "site": "myspeaker.ru"}, {"n": "8", "company": "Synergy Speakers", "type": "Агентство спикеров (Синергия)", "what": "Хедлайнеры уровня Шварценеггер, Хабиб. Форумы на 20 000 чел.", "useful": "Букинг Дениса на крупные форумы", "contact": "Через сайт", "site": "lpv.synergy.ru/speakers"}, {"n": "9", "company": "TG: @biznesadm", "type": "Агрегатор бизнес-подкастов в TG", "what": "TG-канал «БИЗНЕС-ПОДКАСТЫ» — размещение подкастов", "useful": "Размещение выпусков Дениса + реклама", "contact": "TG: @biznesadm", "site": "t.me/business_podcast"}, {"n": "10", "company": "TG: @Danil_Podcast", "type": "Агрегатор подкастов в TG", "what": "TG-канал «Бизнес | Подкасты» — реклама и размещение", "useful": "Дистрибуция выпусков Дениса", "contact": "TG: @Danil_Podcast", "site": "t.me/podkasty24"}]};
+
+
+const extraPods=[
+{name:"Основатели (KULTBAZA)",host:"Денис Кутергин (YouDo) + Эдуард Гуринович (CarPrice)",subs:"150–200K YT, 83 эпизода",topic:"Фаундеры, стартапы, крупный бизнес в России",angle:"Управление группой компаний Kokoc",contact:"youtube.com/@osnovately",url:"https://www.youtube.com/channel/UCLHUstZMFFBSs5_2Uouvadg",price:"Запросить",city:"Москва",bonus:"Подкаст + видеошоу"},
+{name:"План Б (Т—Ж)",host:"Мария Долгополова + Илья Иноземцев",subs:"Топ Apple Бизнес",topic:"Финансы, путь к богатству",angle:"Бренд Т-Банк",contact:"podcast@t-j.ru",url:"https://t-j.ru/flows/plan-b/",price:"Запросить",city:"Москва",bonus:"6 сезонов"},
+{name:"Калькулятор",host:"Лев Пархоменко",subs:"#1 финанс. Apple РФ",topic:"Деньги: заработать, сохранить, потратить",angle:"Тема менторства = прямой фит",contact:"t.me/yaalsu",url:"https://podcasts.apple.com/ru/podcast/1480152280",price:"Запросить",city:"—",bonus:"#1 финансовый подкаст"},
+{name:"Радислав Гандапас",host:"Радислав Гандапас",subs:"100K+ YT",topic:"Лидерство, публичные выступления, харизма",angle:"Менторство и ораторское мастерство",contact:"pa@gandapas.ru",url:"https://www.youtube.com/@gandapas",price:"Запросить",city:"—",bonus:"Прямой фит для спикерского трека"},
+];
+
+var allPods=(function(){
+var extras=extraPods.map(function(p,i){return {n:String(i+1),name:p.name,host:p.host,topic:p.topic,subs:p.subs,price:p.price||'Запросить',city:p.city||'—',bonus:p.bonus||p.angle||'',contact:p.contact,url:p.url};});
+var base=podData.podcasts.map(function(p,i){p.n=String(extras.length+i+1);return p;});
+return extras.concat(base);
+})();
+
+var podSelectedKeys=new Set();
+var podFilterMode='all';
+var podCat='youtube';
+
+function isYoutubePod(p){
+var c=(p.contact||'').toLowerCase();
+var u=(p.url||'').toLowerCase();
+return c.indexOf('youtube')>-1||u.indexOf('youtube')>-1||c.indexOf('youtu.be')>-1;
+}
+function switchPodCat(btn){
+document.querySelectorAll('#pod-cat-toolbar .filter-btn').forEach(function(b){b.classList.remove('active')});
+btn.classList.add('active');
+podCat=btn.dataset.cat;
+filterPods();
+}
+
+function renderPodsTable(list){
+var tb=document.getElementById('pod-tbody');
+
+var html='';
+list.forEach(function(p,i){
+var idx=allPods.indexOf(p);
+var key='pod_'+idx;
+var checked=podSelectedKeys.has(key)?'checked':'';
+var selClass=podSelectedKeys.has(key)?'selected':(p.price!=='Запросить'&&p.price!=='—'?'has-price':'');
+
+var contactParts=p.contact.split(' · ');
+var contactHtml=contactParts.map(function(pt){
+pt=pt.trim();
+if(pt.match(/^[a-z0-9][\w.-]*\.[a-z]{2,}/i)){return '<a href="https://'+pt+'" target="_blank" rel="noopener" style="color:var(--accent)">'+pt+'</a>';}
+if(pt.indexOf('t.me/')===0){return '<a href="https://'+pt+'" target="_blank" rel="noopener" style="color:var(--accent)">'+pt+'</a>';}
+return pt;
+}).join(' · ');
+html+='<tr class="'+selClass+'">'+
+'<td><input type="checkbox" '+checked+' onchange="togglePodSelect(\''+key+'\')" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"></td>'+
+(function(){
+var cUrl=p.url||(p.contact.match(/^[a-z0-9][\w.-]*\.[a-z]{2,}/i)?'https://'+p.contact.split(' ')[0]:'');
+return '<td><strong>'+p.n+'. '+(cUrl?'<a href="'+cUrl+'" target="_blank" rel="noopener">'+p.name+'</a>':p.name)+'</strong></td>';
+})()+
+'<td>'+p.host+'</td>'+
+'<td style="max-width:180px">'+p.topic+'</td>'+
+'<td>'+p.subs+'</td>'+
+'<td style="'+(p.price!=='Запросить'&&p.price!=='—'?'color:var(--accent);font-weight:700':'')+'">'+ p.price+'</td>'+
+'<td>'+(p.city||'—')+'</td>'+
+'<td style="max-width:200px;font-size:11px">'+(p.bonus||'—')+'</td>'+
+'</tr>';
+});
+tb.innerHTML=html;
+}
+function togglePodSelect(key){
+if(podSelectedKeys.has(key))podSelectedKeys.delete(key);else podSelectedKeys.add(key);
+updatePodSummary();
+filterPods();
+}
+function updatePodSummary(){
+var sum=document.getElementById('pod-summary');
+var cnt=document.getElementById('pod-count');
+var nms=document.getElementById('pod-names');
+if(podSelectedKeys.size===0){sum.style.display='none';return;}
+sum.style.display='block';
+cnt.textContent=podSelectedKeys.size;
+var names=[];
+podSelectedKeys.forEach(function(key){
+var idx=parseInt(key.split('_')[1]);
+if(allPods[idx])names.push(allPods[idx].name);
+});
+nms.textContent=names.join(', ');
+}
+function togglePodFilter(btn){
+document.querySelectorAll('#pod-filter-toolbar .filter-btn').forEach(function(b){b.classList.remove('active')});
+btn.classList.add('active');
+podFilterMode=btn.dataset.f;
+filterPods();
+}
+function filterPods(){
+var q=document.getElementById('pod-search').value.toLowerCase();
+if(podFilterMode==='selected'){
+var sel=[];
+podSelectedKeys.forEach(function(key){
+var idx=parseInt(key.split('_')[1]);
+var p=allPods[idx];
+if(p&&(!q||(p.name+p.host+p.topic+p.city+p.contact+(p.bonus||'')).toLowerCase().indexOf(q)>-1))
+sel.push(p);
+});
+renderPodsTable(sel);
+return;
+}
+var list=allPods.filter(function(p){
+var isYt=isYoutubePod(p);
+if(podCat==='youtube'&&!isYt)return false;
+if(podCat==='other'&&isYt)return false;
+if(!q)return true;
+return (p.name+p.host+p.topic+(p.city||'')+(p.contact||'')+(p.bonus||'')).toLowerCase().indexOf(q)>-1;
+});
+renderPodsTable(list);
+}
+renderPodsTable(allPods);
+</script>
+</body>
+</html>
